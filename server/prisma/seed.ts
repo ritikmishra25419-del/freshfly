@@ -1,0 +1,24 @@
+import prisma from "../src/config/prisma";
+
+async function main() {
+  const roles: Array<"FRESHER" | "CLIENT" | "MENTOR"> = ["FRESHER", "CLIENT", "MENTOR"];
+
+  for (const name of roles) {
+    await prisma.role.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  console.log("Roles seeded.");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
