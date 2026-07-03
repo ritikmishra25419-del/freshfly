@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -18,9 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={
             <ProtectedRoute>
-              <div style={{ padding: 40 }}>
-                <h2>Profile page coming next!</h2>
-              </div>
+              <Profile />
             </ProtectedRoute>
           } />
         </Routes>
