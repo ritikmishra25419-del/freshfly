@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { AuthResponse, SignupPayload } from '../types/auth';
+import type { AuthResponse, SignupPayload } from '../types/auth';
 import '../styles/auth.css';
 
 const roles = [
@@ -26,13 +26,19 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('submitting form', form);
     setError('');
     setLoading(true);
     try {
+      console.log('calling api...');
       const res = await api.post<AuthResponse>('/auth/signup', form);
+      console.log('api response', res.data);
       login(res.data.token, res.data.user);
       navigate('/profile');
     } catch (err: any) {
+      console.log('caught error', err);
+      console.log('error response', err?.response);
+      console.log('error message', err?.message);
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
@@ -46,7 +52,6 @@ export default function Signup() {
           <h1 className="auth-logo">FreshFly</h1>
           <p className="auth-subtitle">Start your freelance journey</p>
         </div>
-
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Full Name</label>
@@ -58,7 +63,6 @@ export default function Signup() {
               required
             />
           </div>
-
           <div className="form-group">
             <label>Email</label>
             <input
@@ -69,7 +73,6 @@ export default function Signup() {
               required
             />
           </div>
-
           <div className="form-group">
             <label>Password</label>
             <input
@@ -81,14 +84,13 @@ export default function Signup() {
               minLength={6}
             />
           </div>
-
           <div className="form-group">
             <label>I am a...</label>
             <div className="role-picker">
               {roles.map(role => (
                 <div
                   key={role.value}
-                  className={ole-card + (form.role === role.value ? 'selected' : '')}
+                  className={`role-card ${form.role === role.value ? 'selected' : ''}`}
                   onClick={() => setForm({ ...form, role: role.value })}
                 >
                   <span className="role-label">{role.label}</span>
@@ -97,14 +99,11 @@ export default function Signup() {
               ))}
             </div>
           </div>
-
           {error && <p className="error-msg">{error}</p>}
-
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
-
         <p className="auth-switch">
           Already have an account? <Link to="/login">Log in</Link>
         </p>
