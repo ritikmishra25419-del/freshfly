@@ -1,11 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { useTheme, themes, Theme } from '../store/ThemeContext';
-import { useAuth } from '../store/AuthContext';
+import { useTheme, themes } from '../store/ThemeContext';
+import type { Theme } from '../store/ThemeContext';
 import '../styles/themepicker.css';
 
 export default function ThemePicker() {
   const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   return (
