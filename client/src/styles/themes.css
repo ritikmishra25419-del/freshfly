@@ -1,0 +1,94 @@
+[data-theme="ocean"] {
+  --primary: #2563EB;
+  --primary-light: #EFF6FF;
+  --primary-dark: #1D4ED8;
+  --secondary: #38BDF8;
+  --accent: #0EA5E9;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --gradient: linear-gradient(135deg, #2563EB, #38BDF8);
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #475569;
+  --sidebar-active-bg: #EFF6FF;
+  --sidebar-active-text: #2563EB;
+}
+
+[data-theme="cosmic"] {
+  --primary: #7C3AED;
+  --primary-light: #1E1B4B;
+  --primary-dark: #6D28D9;
+  --secondary: #A855F7;
+  --accent: #22D3EE;
+  --bg: #0F172A;
+  --card: #1E293B;
+  --border: #334155;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #64748B;
+  --gradient: linear-gradient(135deg, #7C3AED, #A855F7, #22D3EE);
+  --sidebar-bg: #1E293B;
+  --sidebar-text: #CBD5E1;
+  --sidebar-active-bg: #312E81;
+  --sidebar-active-text: #A855F7;
+}
+
+[data-theme="mint"] {
+  --primary: #10B981;
+  --primary-light: #ECFDF5;
+  --primary-dark: #059669;
+  --secondary: #6EE7B7;
+  --accent: #14B8A6;
+  --bg: #F0FDF4;
+  --card: #FFFFFF;
+  --border: #D1FAE5;
+  --text-primary: #064E3B;
+  --text-secondary: #065F46;
+  --text-muted: #6EE7B7;
+  --gradient: linear-gradient(135deg, #10B981, #6EE7B7);
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #065F46;
+  --sidebar-active-bg: #ECFDF5;
+  --sidebar-active-text: #10B981;
+}
+
+[data-theme="midnight"] {
+  --primary: #3B82F6;
+  --primary-light: #1E3A5F;
+  --primary-dark: #2563EB;
+  --secondary: #60A5FA;
+  --accent: #22D3EE;
+  --bg: #030712;
+  --card: #111827;
+  --border: #1F2937;
+  --text-primary: #F9FAFB;
+  --text-secondary: #D1D5DB;
+  --text-muted: #6B7280;
+  --gradient: linear-gradient(135deg, #111827, #1E293B, #3B82F6);
+  --sidebar-bg: #111827;
+  --sidebar-text: #D1D5DB;
+  --sidebar-active-bg: #1E3A5F;
+  --sidebar-active-text: #60A5FA;
+}
+
+[data-theme="neon"] {
+  --primary: #FF0080;
+  --primary-light: #2D0A1E;
+  --primary-dark: #CC0066;
+  --secondary: #FF4DA6;
+  --accent: #C026D3;
+  --bg: #0A0A0F;
+  --card: #141418;
+  --border: #2D2D35;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #64748B;
+  --gradient: linear-gradient(135deg, #FF0080, #C026D3, #7C3AED);
+  --sidebar-bg: #141418;
+  --sidebar-text: #E2E8F0;
+  --sidebar-active-bg: #2D0A1E;
+  --sidebar-active-text: #FF4DA6;
+}
