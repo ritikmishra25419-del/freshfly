@@ -1,4 +1,4 @@
-[data-theme="ocean"] {
+:root, [data-theme="ocean"] {
   --primary: #2563EB;
   --primary-light: #EFF6FF;
   --primary-dark: #1D4ED8;
