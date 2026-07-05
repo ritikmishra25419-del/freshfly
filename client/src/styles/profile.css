@@ -6,7 +6,7 @@
 }
 
 .sidebar {
-  background: white;
+  background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
   padding: 24px 0;
   display: flex;
@@ -42,13 +42,21 @@
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--sidebar-text);
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.sidebar-item:hover { background: var(--primary-light); color: var(--primary); }
-.sidebar-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+.sidebar-item:hover {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+}
+
+.sidebar-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+  font-weight: 700;
+}
 
 .profile-main {
   padding: 36px 40px;
@@ -60,6 +68,7 @@
   font-weight: 800;
   letter-spacing: -0.5px;
   margin-bottom: 4px;
+  color: var(--text-primary);
 }
 
 .profile-greeting span { color: var(--primary); }
@@ -71,7 +80,7 @@
 }
 
 .passport-card {
-  background: white;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -81,7 +90,7 @@
 
 .passport-banner {
   height: 100px;
-  background: linear-gradient(135deg, #5B5FFF 0%, #7B5FFF 60%, #6EE7B7 100%);
+  background: var(--gradient);
 }
 
 .passport-info {
@@ -101,7 +110,7 @@
   height: 64px;
   border-radius: 50%;
   background: var(--primary);
-  border: 4px solid white;
+  border: 4px solid var(--card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,6 +151,7 @@
   font-weight: 800;
   letter-spacing: -0.3px;
   margin-bottom: 4px;
+  color: var(--text-primary);
 }
 
 .passport-email {
@@ -151,8 +161,8 @@
 }
 
 .tier-progress-card {
-  background: linear-gradient(135deg, #EEF0FF, #F0FDF4);
-  border: 1px solid #C7D2FE;
+  background: var(--primary-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 18px 20px;
   margin-bottom: 20px;
@@ -176,22 +186,19 @@
   color: var(--text-secondary);
 }
 
-.tier-dots {
-  display: flex;
-  gap: 6px;
-}
+.tier-dots { display: flex; gap: 6px; }
 
 .tier-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #C7D2FE;
+  background: var(--border);
 }
 
 .tier-dot.active { background: var(--primary); }
 
 .tier-bar-wrap {
-  background: #C7D2FE;
+  background: var(--border);
   border-radius: 100px;
   height: 6px;
 }
@@ -204,7 +211,7 @@
 }
 
 .details-card {
-  background: white;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px 28px;
@@ -215,6 +222,7 @@
 .details-card-title {
   font-size: 15px;
   font-weight: 800;
+  color: var(--text-primary);
   margin-bottom: 18px;
   display: flex;
   justify-content: space-between;
@@ -237,7 +245,6 @@
 .edit-btn:hover { background: var(--primary); color: white; }
 
 .detail-rows { display: flex; flex-direction: column; gap: 14px; }
-
 .detail-row { display: flex; flex-direction: column; gap: 3px; }
 
 .detail-label {
@@ -287,15 +294,16 @@
   font-size: 14px;
   font-family: var(--font);
   outline: none;
+  background: var(--card);
+  color: var(--text-primary);
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: white;
   resize: vertical;
 }
 
 .edit-form input:focus,
 .edit-form textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(91,95,255,0.1);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
 }
 
 .edit-actions { display: flex; gap: 10px; }
@@ -318,7 +326,7 @@
 
 .btn-cancel {
   padding: 11px 22px;
-  background: white;
+  background: var(--card);
   color: var(--text-secondary);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -329,7 +337,10 @@
   transition: all 0.2s;
 }
 
-.btn-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.btn-cancel:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
 
 .logout-btn {
   background: none;
@@ -353,4 +364,5 @@
   justify-content: center;
   font-size: 15px;
   color: var(--text-secondary);
+  background: var(--bg);
 }
