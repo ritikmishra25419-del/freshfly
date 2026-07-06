@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
+import { useTheme } from '../store/ThemeContext';
 import '../styles/profile.css';
 
 interface ProfileData {
@@ -29,8 +30,17 @@ const navItems = [
   { icon: '⚙️', label: 'Settings' },
 ];
 
+const themeColors: Record<string, string> = {
+  ocean: '#2563EB',
+  cosmic: '#7C3AED',
+  mint: '#10B981',
+  midnight: '#3B82F6',
+  neon: '#FF0080',
+};
+
 export default function Profile() {
   const { logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,14 +89,64 @@ export default function Profile() {
         <div className="sidebar-logo">FreshFly ✦</div>
         <div className="sidebar-nav">
           {navItems.map((item, i) => (
-            <div key={item.label} className={`sidebar-item ${i === 0 ? 'active' : ''}`}>
+            <div
+              key={item.label}
+              className={`sidebar-item ${i === 0 ? 'active' : ''}`}
+              title={i === 0 ? undefined : 'Coming soon'}
+              style={{ opacity: i === 0 ? 1 : 0.5, cursor: i === 0 ? 'pointer' : 'not-allowed' }}
+            >
               <span>{item.icon}</span>
               <span>{item.label}</span>
+              {i !== 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  fontSize: 9,
+                  background: 'var(--border)',
+                  color: 'var(--text-muted)',
+                  padding: '1px 6px',
+                  borderRadius: 100,
+                  fontWeight: 700,
+                }}>
+                  Soon
+                </span>
+              )}
             </div>
           ))}
         </div>
-        <div style={{ padding: '0 24px' }}>
-          <button className="logout-btn" style={{ width: '100%' }} onClick={() => { logout(); navigate('/login'); }}>
+
+        <div style={{ padding: '0 16px', marginBottom: 12 }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: 1,
+            color: 'var(--text-muted)', textTransform: 'uppercase',
+            marginBottom: 8, paddingLeft: 4
+          }}>
+            Theme
+          </div>
+          <div style={{ display: 'flex', gap: 6, paddingLeft: 4 }}>
+            {Object.entries(themeColors).map(([t, color]) => (
+              <div
+                key={t}
+                title={t.charAt(0).toUpperCase() + t.slice(1)}
+                onClick={() => setTheme(t as any)}
+                style={{
+                  width: 18, height: 18, borderRadius: '50%',
+                  background: color, cursor: 'pointer',
+                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
+                  transition: 'all 0.2s',
+                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
+                  boxShadow: theme === t ? `0 0 0 2px var(--bg)` : 'none',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: '0 16px' }}>
+          <button
+            className="logout-btn"
+            style={{ width: '100%' }}
+            onClick={() => { logout(); navigate('/login'); }}
+          >
             Log out
           </button>
         </div>

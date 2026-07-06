@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
+import { useTheme, roleDefaultTheme } from '../store/ThemeContext';
 import type { AuthResponse, SignupPayload } from '../types/auth';
 import '../styles/auth.css';
 
@@ -14,6 +15,7 @@ const roles = [
 export default function Signup() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { setTheme } = useTheme();
   const [form, setForm] = useState<SignupPayload>({ name: '', email: '', password: '', role: 'FRESHER' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,8 @@ export default function Signup() {
     try {
       const res = await api.post<AuthResponse>('/auth/signup', form);
       login(res.data.token, res.data.user);
-      navigate('/profile');
+      setTheme(roleDefaultTheme[form.role]);
+      navigate('/choose-theme');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Signup failed. Please try again.');
     } finally {
