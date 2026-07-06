@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
 import { useTheme } from '../store/ThemeContext';
+import type { Theme } from '../store/ThemeContext';
 import '../styles/profile.css';
 
 interface ProfileData {
@@ -18,16 +19,16 @@ interface ProfileData {
 }
 
 const navItems = [
-  { icon: '🏠', label: 'Home' },
-  { icon: '💼', label: 'Jobs' },
-  { icon: '📋', label: 'Applications' },
-  { icon: '🗂️', label: 'Portfolio' },
-  { icon: '🪪', label: 'Career Passport' },
-  { icon: '🗺️', label: 'Roadmap' },
-  { icon: '👥', label: 'Community' },
-  { icon: '💬', label: 'Messages' },
-  { icon: '🔔', label: 'Notifications' },
-  { icon: '⚙️', label: 'Settings' },
+  { icon: '🏠', label: 'Home', path: '/profile' },
+  { icon: '💼', label: 'Jobs', path: '/jobs' },
+  { icon: '📋', label: 'Applications', path: null },
+  { icon: '🗂️', label: 'Portfolio', path: null },
+  { icon: '🪪', label: 'Career Passport', path: null },
+  { icon: '🗺️', label: 'Roadmap', path: null },
+  { icon: '👥', label: 'Community', path: null },
+  { icon: '💬', label: 'Messages', path: null },
+  { icon: '🔔', label: 'Notifications', path: null },
+  { icon: '⚙️', label: 'Settings', path: null },
 ];
 
 const themeColors: Record<string, string> = {
@@ -82,22 +83,27 @@ export default function Profile() {
   const tierPercent = ((profile.tier || 1) / 3) * 100;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const currentPath = '/profile';
 
   return (
     <div className="profile-page">
       <div className="sidebar">
         <div className="sidebar-logo">FreshFly ✦</div>
         <div className="sidebar-nav">
-          {navItems.map((item, i) => (
+          {navItems.map((item) => (
             <div
               key={item.label}
-              className={`sidebar-item ${i === 0 ? 'active' : ''}`}
-              title={i === 0 ? undefined : 'Coming soon'}
-              style={{ opacity: i === 0 ? 1 : 0.5, cursor: i === 0 ? 'pointer' : 'not-allowed' }}
+              className={`sidebar-item ${item.path === currentPath ? 'active' : ''}`}
+              onClick={() => item.path ? navigate(item.path) : null}
+              style={{
+                opacity: item.path ? 1 : 0.5,
+                cursor: item.path ? 'pointer' : 'not-allowed',
+              }}
+              title={!item.path ? 'Coming soon' : undefined}
             >
               <span>{item.icon}</span>
               <span>{item.label}</span>
-              {i !== 0 && (
+              {!item.path && (
                 <span style={{
                   marginLeft: 'auto',
                   fontSize: 9,
@@ -118,7 +124,7 @@ export default function Profile() {
           <div style={{
             fontSize: 10, fontWeight: 700, letterSpacing: 1,
             color: 'var(--text-muted)', textTransform: 'uppercase',
-            marginBottom: 8, paddingLeft: 4
+            marginBottom: 8, paddingLeft: 4,
           }}>
             Theme
           </div>
@@ -127,14 +133,14 @@ export default function Profile() {
               <div
                 key={t}
                 title={t.charAt(0).toUpperCase() + t.slice(1)}
-                onClick={() => setTheme(t as any)}
+                onClick={() => setTheme(t as Theme)}
                 style={{
                   width: 18, height: 18, borderRadius: '50%',
                   background: color, cursor: 'pointer',
                   border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
                   transition: 'all 0.2s',
                   transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                  boxShadow: theme === t ? `0 0 0 2px var(--bg)` : 'none',
+                  boxShadow: theme === t ? '0 0 0 2px var(--bg)' : 'none',
                 }}
               />
             ))}
@@ -145,7 +151,7 @@ export default function Profile() {
           <button
             className="logout-btn"
             style={{ width: '100%' }}
-            onClick={() => { logout(); navigate('/login'); }}
+            onClick={() => { logout(); navigate('/'); }}
           >
             Log out
           </button>

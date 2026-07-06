@@ -4,6 +4,7 @@ import { ThemeProvider } from './store/ThemeContext';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import ThemePicker from './pages/ThemePicker';
+import Jobs from './pages/Jobs';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,9 @@ function App() {
             } />
             <Route path="/profile" element={
               <ProtectedRoute><Profile /></ProtectedRoute>
+            } />
+            <Route path="/jobs" element={
+              <ProtectedRoute><Jobs /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
