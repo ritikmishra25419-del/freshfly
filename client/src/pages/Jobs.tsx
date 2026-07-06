@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme, themes } from '../store/ThemeContext';
+import { useTheme } from '../store/ThemeContext';
 import type { Theme } from '../store/ThemeContext';
 import '../styles/jobs.css';
 
@@ -158,7 +158,7 @@ export default function Jobs() {
             </h1>
             <p className="jobs-subtitle">
               {user?.role === 'FRESHER'
-                ? `Showing jobs matching your tier — only compete at your level`
+                ? 'Showing jobs matching your tier — only compete at your level'
                 : user?.role === 'CLIENT'
                 ? 'Post jobs and manage your listings'
                 : 'Browse all open jobs on the platform'}
@@ -183,11 +183,11 @@ export default function Jobs() {
               <button className="jobs-modal-close" onClick={() => setShowPostForm(false)}>✕</button>
               <h2 className="jobs-modal-title">Post a new job</h2>
               <p className="jobs-modal-sub">Fill in the details — freshers will see this based on their tier.</p>
-
               <form onSubmit={handlePostJob} className="jobs-post-form">
                 <div className="jobs-form-group">
                   <label>Job title</label>
-                  <input type="text" placeholder="e.g. React Landing Page" value={postForm.title}
+                  <input type="text" placeholder="e.g. React Landing Page"
+                    value={postForm.title}
                     onChange={e => setPostForm({ ...postForm, title: e.target.value })} required />
                 </div>
                 <div className="jobs-form-group">
@@ -199,7 +199,8 @@ export default function Jobs() {
                 <div className="jobs-form-row">
                   <div className="jobs-form-group">
                     <label>Budget (₹)</label>
-                    <input type="number" placeholder="e.g. 5000" value={postForm.budget}
+                    <input type="number" placeholder="e.g. 5000"
+                      value={postForm.budget}
                       onChange={e => setPostForm({ ...postForm, budget: e.target.value })} required />
                   </div>
                   <div className="jobs-form-group">
@@ -214,7 +215,8 @@ export default function Jobs() {
                 </div>
                 <div className="jobs-form-group">
                   <label>Skills (comma separated)</label>
-                  <input type="text" placeholder="e.g. React, Tailwind, Node.js" value={postForm.skills}
+                  <input type="text" placeholder="e.g. React, Tailwind, Node.js"
+                    value={postForm.skills}
                     onChange={e => setPostForm({ ...postForm, skills: e.target.value })} required />
                 </div>
                 <div className="jobs-form-check">
@@ -243,7 +245,7 @@ export default function Jobs() {
                 : 'Check back soon — new jobs are posted daily.'}
             </div>
             {user?.role === 'CLIENT' && (
-              <button className="jobs-post-btn" onClick={() => setShowPostForm(true)}>
+              <button className="jobs-post-btn" style={{ marginTop: 16 }} onClick={() => setShowPostForm(true)}>
                 + Post your first job
               </button>
             )}
@@ -262,13 +264,21 @@ export default function Jobs() {
                       <div className="job-client-verified">Verified client ✓</div>
                     </div>
                   </div>
-                  <div className="job-tier-badge" style={{ background: `${tierColor[job.tierRequired]}20`, color: tierColor[job.tierRequired] }}>
+                  <div
+                    className="job-tier-badge"
+                    style={{
+                      background: `${tierColor[job.tierRequired]}20`,
+                      color: tierColor[job.tierRequired],
+                    }}
+                  >
                     Tier {job.tierRequired}
                   </div>
                 </div>
 
                 <div className="job-title">{job.title}</div>
-                <div className="job-desc">{job.description.slice(0, 100)}{job.description.length > 100 ? '...' : ''}</div>
+                <div className="job-desc">
+                  {job.description.slice(0, 100)}{job.description.length > 100 ? '...' : ''}
+                </div>
 
                 <div className="job-skills">
                   {job.skills.split(',').map(s => (
@@ -279,7 +289,15 @@ export default function Jobs() {
 
                 <div className="job-card-bottom">
                   <div className="job-budget">₹{job.budget.toLocaleString()}</div>
-                  <button className="job-apply-btn">Apply now</button>
+                  {user?.role === 'FRESHER' && (
+                    <button className="job-apply-btn">Apply now</button>
+                  )}
+                  {user?.role === 'CLIENT' && (
+                    <span className="job-posted-badge">📋 Your listing</span>
+                  )}
+                  {user?.role === 'MENTOR' && (
+                    <span className="job-posted-badge">👀 Viewing</span>
+                  )}
                 </div>
               </div>
             ))}
