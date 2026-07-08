@@ -474,4 +474,22 @@
   transform: translateY(-1px);
 }
 
+.job-posted-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 8px;
+} 
 .jobs-form-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.job-applied-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--success);
+  background: #DCFCE7;
+  border: 1px solid #BBF7D0;
+  padding: 6px 12px;
+  border-radius: 8px;
+}

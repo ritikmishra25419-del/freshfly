@@ -31,7 +31,7 @@ interface PostJobForm {
 const navItems = [
   { icon: '🏠', label: 'Home', path: '/profile' },
   { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: null },
+  { icon: '📋', label: 'Applications', path: '/applications' },
   { icon: '🗂️', label: 'Portfolio', path: null },
   { icon: '🪪', label: 'Career Passport', path: null },
   { icon: '🗺️', label: 'Roadmap', path: null },
@@ -62,19 +62,32 @@ export default function Jobs() {
   const [postError, setPostError] = useState('');
   const [postSuccess, setPostSuccess] = useState(false);
 
+  const [applyingJob, setApplyingJob] = useState<Job | null>(null);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState('');
+  const [applySuccess, setApplySuccess] = useState(false);
+  const [appliedJobIds, setAppliedJobIds] = useState<number[]>([]);
+
   useEffect(() => {
     api.get('/jobs')
       .then(res => {
         const data = res.data as { jobs: Job[] | Record<string, Job> };
-        if (Array.isArray(data.jobs)) {
-          setJobs(data.jobs);
-        } else {
-          setJobs(Object.values(data.jobs));
-        }
+        if (Array.isArray(data.jobs)) setJobs(data.jobs);
+        else setJobs(Object.values(data.jobs));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+
+    if (user?.role === 'FRESHER') {
+      api.get('/applications/my')
+        .then(res => {
+          const data = res.data as { applications: { job: { id: number } }[] };
+          setAppliedJobIds(data.applications.map(a => a.job.id));
+        })
+        .catch(console.error);
+    }
+  }, [user]);
 
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,9 +106,23 @@ export default function Jobs() {
       setTimeout(() => setPostSuccess(false), 3000);
     } catch (err: any) {
       setPostError(err.response?.data?.message || 'Failed to post job.');
-    } finally {
-      setPosting(false);
-    }
+    } finally { setPosting(false); }
+  };
+
+  const handleApply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applyingJob) return;
+    setApplyError(''); setApplying(true);
+    try {
+      await api.post(`/applications/job/${applyingJob.id}`, { coverLetter });
+      setAppliedJobIds(prev => [...prev, applyingJob.id]);
+      setApplyingJob(null);
+      setCoverLetter('');
+      setApplySuccess(true);
+      setTimeout(() => setApplySuccess(false), 3000);
+    } catch (err: any) {
+      setApplyError(err.response?.data?.message || 'Failed to apply.');
+    } finally { setApplying(false); }
   };
 
   const tierColor: Record<number, string> = {
@@ -117,9 +144,7 @@ export default function Jobs() {
             >
               <span>{item.icon}</span>
               <span>{item.label}</span>
-              {!item.path && (
-                <span className="jobs-soon-badge">Soon</span>
-              )}
+              {!item.path && <span className="jobs-soon-badge">Soon</span>}
             </div>
           ))}
         </div>
@@ -128,10 +153,7 @@ export default function Jobs() {
           <div className="jobs-theme-label">Theme</div>
           <div className="jobs-theme-dots">
             {Object.entries(themeColors).map(([t, color]) => (
-              <div
-                key={t}
-                title={t}
-                onClick={() => setTheme(t as Theme)}
+              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
                 className="jobs-theme-dot"
                 style={{
                   background: color,
@@ -153,9 +175,7 @@ export default function Jobs() {
       <div className="jobs-main">
         <div className="jobs-header">
           <div>
-            <h1 className="jobs-title">
-              {user?.role === 'CLIENT' ? 'Manage Jobs' : 'Find Jobs'}
-            </h1>
+            <h1 className="jobs-title">{user?.role === 'CLIENT' ? 'Manage Jobs' : 'Find Jobs'}</h1>
             <p className="jobs-subtitle">
               {user?.role === 'FRESHER'
                 ? 'Showing jobs matching your tier — only compete at your level'
@@ -165,17 +185,12 @@ export default function Jobs() {
             </p>
           </div>
           {user?.role === 'CLIENT' && (
-            <button className="jobs-post-btn" onClick={() => setShowPostForm(true)}>
-              + Post a job
-            </button>
+            <button className="jobs-post-btn" onClick={() => setShowPostForm(true)}>+ Post a job</button>
           )}
         </div>
 
-        {postSuccess && (
-          <div className="jobs-success-banner">
-            ✅ Job posted successfully! Freshers can now apply.
-          </div>
-        )}
+        {postSuccess && <div className="jobs-success-banner">✅ Job posted successfully! Freshers can now apply.</div>}
+        {applySuccess && <div className="jobs-success-banner">🎉 Application submitted! Good luck!</div>}
 
         {showPostForm && (
           <div className="jobs-modal-overlay" onClick={() => setShowPostForm(false)}>
@@ -187,26 +202,22 @@ export default function Jobs() {
                 <div className="jobs-form-group">
                   <label>Job title</label>
                   <input type="text" placeholder="e.g. React Landing Page"
-                    value={postForm.title}
-                    onChange={e => setPostForm({ ...postForm, title: e.target.value })} required />
+                    value={postForm.title} onChange={e => setPostForm({ ...postForm, title: e.target.value })} required />
                 </div>
                 <div className="jobs-form-group">
                   <label>Description</label>
                   <textarea rows={3} placeholder="Describe the project in detail..."
-                    value={postForm.description}
-                    onChange={e => setPostForm({ ...postForm, description: e.target.value })} required />
+                    value={postForm.description} onChange={e => setPostForm({ ...postForm, description: e.target.value })} required />
                 </div>
                 <div className="jobs-form-row">
                   <div className="jobs-form-group">
                     <label>Budget (₹)</label>
                     <input type="number" placeholder="e.g. 5000"
-                      value={postForm.budget}
-                      onChange={e => setPostForm({ ...postForm, budget: e.target.value })} required />
+                      value={postForm.budget} onChange={e => setPostForm({ ...postForm, budget: e.target.value })} required />
                   </div>
                   <div className="jobs-form-group">
                     <label>Tier required</label>
-                    <select value={postForm.tierRequired}
-                      onChange={e => setPostForm({ ...postForm, tierRequired: e.target.value })}>
+                    <select value={postForm.tierRequired} onChange={e => setPostForm({ ...postForm, tierRequired: e.target.value })}>
                       <option value="1">Tier 1 — Starter</option>
                       <option value="2">Tier 2 — Rising</option>
                       <option value="3">Tier 3 — Pro</option>
@@ -216,8 +227,7 @@ export default function Jobs() {
                 <div className="jobs-form-group">
                   <label>Skills (comma separated)</label>
                   <input type="text" placeholder="e.g. React, Tailwind, Node.js"
-                    value={postForm.skills}
-                    onChange={e => setPostForm({ ...postForm, skills: e.target.value })} required />
+                    value={postForm.skills} onChange={e => setPostForm({ ...postForm, skills: e.target.value })} required />
                 </div>
                 <div className="jobs-form-check">
                   <input type="checkbox" id="remote" checked={postForm.isRemote}
@@ -227,6 +237,30 @@ export default function Jobs() {
                 {postError && <div className="jobs-form-error">{postError}</div>}
                 <button type="submit" className="jobs-form-submit" disabled={posting}>
                   {posting ? 'Posting...' : 'Post job →'}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {applyingJob && (
+          <div className="jobs-modal-overlay" onClick={() => setApplyingJob(null)}>
+            <div className="jobs-modal" onClick={e => e.stopPropagation()}>
+              <button className="jobs-modal-close" onClick={() => setApplyingJob(null)}>✕</button>
+              <h2 className="jobs-modal-title">Apply to this job</h2>
+              <p className="jobs-modal-sub">{applyingJob.title} · ₹{applyingJob.budget.toLocaleString()}</p>
+              <form onSubmit={handleApply} className="jobs-post-form">
+                <div className="jobs-form-group">
+                  <label>Cover letter</label>
+                  <textarea rows={5}
+                    placeholder="Tell the client why you're a great fit. Mention relevant skills, your approach, and any similar work you've done..."
+                    value={coverLetter}
+                    onChange={e => setCoverLetter(e.target.value)}
+                    required />
+                </div>
+                {applyError && <div className="jobs-form-error">{applyError}</div>}
+                <button type="submit" className="jobs-form-submit" disabled={applying}>
+                  {applying ? 'Submitting...' : 'Submit application →'}
                 </button>
               </form>
             </div>
@@ -256,21 +290,16 @@ export default function Jobs() {
               <div key={job.id} className="job-card">
                 <div className="job-card-top">
                   <div className="job-client-info">
-                    <div className="job-client-avatar">
-                      {job.client.name.charAt(0).toUpperCase()}
-                    </div>
+                    <div className="job-client-avatar">{job.client.name.charAt(0).toUpperCase()}</div>
                     <div>
                       <div className="job-client-name">{job.client.name}</div>
                       <div className="job-client-verified">Verified client ✓</div>
                     </div>
                   </div>
-                  <div
-                    className="job-tier-badge"
-                    style={{
-                      background: `${tierColor[job.tierRequired]}20`,
-                      color: tierColor[job.tierRequired],
-                    }}
-                  >
+                  <div className="job-tier-badge" style={{
+                    background: `${tierColor[job.tierRequired]}20`,
+                    color: tierColor[job.tierRequired],
+                  }}>
                     Tier {job.tierRequired}
                   </div>
                 </div>
@@ -290,14 +319,16 @@ export default function Jobs() {
                 <div className="job-card-bottom">
                   <div className="job-budget">₹{job.budget.toLocaleString()}</div>
                   {user?.role === 'FRESHER' && (
-                    <button className="job-apply-btn">Apply now</button>
+                    appliedJobIds.includes(job.id) ? (
+                      <span className="job-applied-badge">✓ Applied</span>
+                    ) : (
+                      <button className="job-apply-btn" onClick={() => { setApplyingJob(job); setApplyError(''); }}>
+                        Apply now
+                      </button>
+                    )
                   )}
-                  {user?.role === 'CLIENT' && (
-                    <span className="job-posted-badge">📋 Your listing</span>
-                  )}
-                  {user?.role === 'MENTOR' && (
-                    <span className="job-posted-badge">👀 Viewing</span>
-                  )}
+                  {user?.role === 'CLIENT' && <span className="job-posted-badge">📋 Your listing</span>}
+                  {user?.role === 'MENTOR' && <span className="job-posted-badge">👀 Viewing</span>}
                 </div>
               </div>
             ))}
