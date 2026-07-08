@@ -60,6 +60,21 @@ export default function Profile() {
         });
       })
       .finally(() => setLoading(false));
+      useEffect(() => {
+  api.get<ProfileData>('/profile/me')
+    .then(res => {
+      setProfile(res.data);
+      setForm({
+        bio: res.data.bio || '',
+        education: res.data.education || '',
+        hourlyRate: res.data.hourlyRate?.toString() || '',
+      });
+      if (res.data.role === 'MENTOR') {
+        navigate('/mentor');
+      }
+    })
+    .finally(() => setLoading(false));
+}, []);
   }, []);
 
   const handleSave = async () => {

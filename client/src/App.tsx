@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import ThemePicker from './pages/ThemePicker';
 import Jobs from './pages/Jobs';
 import Applications from './pages/Applications';
+import MentorDashboard from './pages/MentorDashboard';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -30,6 +31,9 @@ function App() {
             } />
             <Route path="/applications" element={
               <ProtectedRoute><Applications /></ProtectedRoute>
+            } />
+            <Route path="/mentor" element={
+              <ProtectedRoute><MentorDashboard /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
