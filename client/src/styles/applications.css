@@ -404,3 +404,29 @@
 }
 
 .apps-client-view { margin-top: 0; }
+.mentor-stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mentor-star {
+  font-size: 28px;
+  color: var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.mentor-star.active { color: #F59E0B; }
+.mentor-star:hover { transform: scale(1.2); }
+
+.mentor-star-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-left: 6px;
+}
+
+.apps-mentor-view { margin-top: 0; }

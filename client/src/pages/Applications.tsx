@@ -40,6 +40,21 @@ interface JobApplication {
   review: { id: number } | null;
 }
 
+interface PendingReview {
+  id: number;
+  fresher: {
+    id: number;
+    name: string;
+    profile: { tier: number | null } | null;
+  };
+  job: {
+    id: number;
+    title: string;
+    skills: string;
+  };
+  createdAt: string;
+}
+
 const navItems = [
   { icon: '🏠', label: 'Home', path: '/profile' },
   { icon: '💼', label: 'Jobs', path: '/jobs' },
@@ -64,6 +79,151 @@ const statusConfig = {
   REJECTED: { label: 'Rejected', color: '#EF4444', bg: '#FEF2F2' },
   COMPLETED: { label: 'Completed', color: '#7C3AED', bg: '#EEF0FF' },
 };
+
+function MentorView() {
+  const [queue, setQueue] = useState<PendingReview[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [reviewing, setReviewing] = useState<number | null>(null);
+  const [rating, setRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitted, setSubmitted] = useState<number[]>([]);
+
+  useEffect(() => {
+    api.get('/reviews/pending')
+      .then(res => {
+        const data = res.data as { applications: PendingReview[] };
+        setQueue(data.applications);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewing) return;
+    setSubmitError('');
+    setSubmitting(true);
+    try {
+      await api.post('/reviews', {
+        applicationId: reviewing,
+        rating,
+        review: reviewText,
+      });
+      setSubmitted(prev => [...prev, reviewing]);
+      setReviewing(null);
+      setReviewText('');
+      setRating(5);
+    } catch (err: any) {
+      setSubmitError(err.response?.data?.message || 'Failed to submit review.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="apps-loading">Loading review queue...</div>;
+
+  const pendingQueue = queue.filter(a => !submitted.includes(a.id));
+
+  return (
+    <div>
+      {reviewing !== null && (
+        <div className="jobs-modal-overlay" onClick={() => setReviewing(null)}>
+          <div className="jobs-modal" onClick={e => e.stopPropagation()}>
+            <button className="jobs-modal-close" onClick={() => setReviewing(null)}>✕</button>
+            <h2 className="jobs-modal-title">Write a review</h2>
+            <p className="jobs-modal-sub">Your review will appear on the fresher's career passport.</p>
+            <form onSubmit={handleSubmitReview} className="jobs-post-form">
+              <div className="jobs-form-group">
+                <label>Rating</label>
+                <div className="mentor-stars">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <span
+                      key={s}
+                      className={`mentor-star ${s <= rating ? 'active' : ''}`}
+                      onClick={() => setRating(s)}
+                    >★</span>
+                  ))}
+                  <span className="mentor-star-label">{rating}/5</span>
+                </div>
+              </div>
+              <div className="jobs-form-group">
+                <label>Review</label>
+                <textarea
+                  rows={4}
+                  placeholder="Describe the fresher's work quality, communication, and professionalism..."
+                  value={reviewText}
+                  onChange={e => setReviewText(e.target.value)}
+                  required
+                />
+              </div>
+              {submitError && <div className="jobs-form-error">{submitError}</div>}
+              <button type="submit" className="jobs-form-submit" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit review →'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {submitted.length > 0 && (
+        <div className="jobs-success-banner" style={{ marginBottom: 20 }}>
+          ✅ Review submitted! The fresher has been notified.
+        </div>
+      )}
+
+      {pendingQueue.length === 0 ? (
+        <div className="apps-empty">
+          <div className="apps-empty-icon">⭐</div>
+          <div className="apps-empty-title">No reviews pending</div>
+          <div className="apps-empty-sub">
+            Completed jobs will appear here when they need a mentor review.
+          </div>
+        </div>
+      ) : (
+        <div className="apps-list">
+          {pendingQueue.map(app => (
+            <div key={app.id} className="app-card">
+              <div className="app-card-top">
+                <div className="app-fresher-info">
+                  <div className="app-fresher-avatar">
+                    {app.fresher.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="app-fresher-name">{app.fresher.name}</div>
+                    <div className="app-fresher-meta">
+                      Tier {app.fresher.profile?.tier || 1} Fresher
+                    </div>
+                  </div>
+                </div>
+                <span className="app-status-badge" style={{ color: '#7C3AED', background: '#EEF0FF' }}>
+                  Needs review
+                </span>
+              </div>
+
+              <div className="app-job-title">{app.job.title}</div>
+              <div className="app-skills" style={{ marginBottom: 14 }}>{app.job.skills}</div>
+
+              <div className="app-date" style={{ marginBottom: 12 }}>
+                Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
+                  day: 'numeric', month: 'short', year: 'numeric',
+                })}
+              </div>
+
+              <button
+                className="app-btn-complete"
+                onClick={() => { setReviewing(app.id); setSubmitError(''); }}
+              >
+                ⭐ Write review
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Applications() {
   const { user, logout } = useAuth();
@@ -178,6 +338,8 @@ export default function Applications() {
         <p className="apps-subtitle">
           {user?.role === 'FRESHER'
             ? 'Track all the jobs you have applied to'
+            : user?.role === 'MENTOR'
+            ? 'Review completed work and vouch for freshers'
             : 'Review applicants for your job listings'}
         </p>
 
@@ -235,13 +397,19 @@ export default function Applications() {
                     )}
 
                     <div className="app-date">
-                      Applied {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      Applied {new Date(app.createdAt).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
                     </div>
                   </div>
                 );
               })}
             </div>
           )
+        )}
+
+        {user?.role === 'MENTOR' && (
+          <MentorView />
         )}
 
         {user?.role === 'CLIENT' && (
@@ -314,18 +482,12 @@ export default function Applications() {
 
                           {app.status === 'PENDING' && (
                             <div className="app-actions">
-                              <button
-                                className="app-btn-accept"
-                                disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'ACCEPTED')}
-                              >
+                              <button className="app-btn-accept" disabled={updating === app.id}
+                                onClick={() => updateStatus(app.id, 'ACCEPTED')}>
                                 ✓ Accept
                               </button>
-                              <button
-                                className="app-btn-reject"
-                                disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'REJECTED')}
-                              >
+                              <button className="app-btn-reject" disabled={updating === app.id}
+                                onClick={() => updateStatus(app.id, 'REJECTED')}>
                                 ✕ Reject
                               </button>
                             </div>
@@ -333,11 +495,8 @@ export default function Applications() {
 
                           {app.status === 'ACCEPTED' && (
                             <div className="app-actions">
-                              <button
-                                className="app-btn-complete"
-                                disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'COMPLETED')}
-                              >
+                              <button className="app-btn-complete" disabled={updating === app.id}
+                                onClick={() => updateStatus(app.id, 'COMPLETED')}>
                                 🎉 Mark as completed
                               </button>
                             </div>
@@ -356,7 +515,9 @@ export default function Applications() {
                           )}
 
                           <div className="app-date">
-                            Applied {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            Applied {new Date(app.createdAt).toLocaleDateString('en-IN', {
+                              day: 'numeric', month: 'short', year: 'numeric',
+                            })}
                           </div>
                         </div>
                       );
