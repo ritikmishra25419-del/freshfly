@@ -21,7 +21,7 @@ interface ProfileData {
 const navItems = [
   { icon: '🏠', label: 'Home', path: '/profile' },
   { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: null },
+  { icon: '📋', label: 'Applications', path: '/applications' },
   { icon: '🗂️', label: 'Portfolio', path: null },
   { icon: '🪪', label: 'Career Passport', path: null },
   { icon: '🗺️', label: 'Roadmap', path: null },
