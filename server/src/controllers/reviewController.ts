@@ -160,3 +160,27 @@ async function checkAndUpgradeTier(fresherId: number) {
     console.error("Tier check error:", err);
   }
 }
+export const getMyReviewsAsMentor = async (req: AuthRequest, res: Response) => {
+  try {
+    const reviews = await prisma.mentorReview.findMany({
+      where: { mentorId: req.userId },
+      include: {
+        fresher: {
+          select: {
+            id: true, name: true,
+            profile: { select: { tier: true } },
+          },
+        },
+        application: {
+          include: { job: { select: { id: true, title: true } } },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json({ reviews });
+  } catch (err) {
+    console.error('Get mentor reviews error:', err);
+    res.status(500).json({ message: 'Something went wrong.' });
+  }
+};
