@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
 import { useTheme } from '../store/ThemeContext';
@@ -43,6 +43,7 @@ export default function MentorDashboard() {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
   const [myReviews, setMyReviews] = useState<Review[]>([]);
@@ -70,15 +71,13 @@ export default function MentorDashboard() {
       .catch(console.error)
       .finally(() => setLoadingPending(false));
 
-    if (user?.id) {
-      api.get(`/reviews/fresher/${user.id}`)
-        .then(res => {
-          const data = res.data as { reviews: Review[] };
-          setMyReviews(data.reviews);
-        })
-        .catch(console.error)
-        .finally(() => setLoadingReviews(false));
-    }
+    api.get('/reviews/my')
+      .then(res => {
+        const data = res.data as { reviews: Review[] };
+        setMyReviews(data.reviews);
+      })
+      .catch(console.error)
+      .finally(() => setLoadingReviews(false));
   }, [user]);
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -117,9 +116,12 @@ export default function MentorDashboard() {
           {navItems.map((item) => (
             <div
               key={item.label}
-              className={`mentor-sidebar-item ${item.path === '/mentor' ? 'active' : ''}`}
+              className={`mentor-sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
+              style={{
+                opacity: item.path ? 1 : 0.5,
+                cursor: item.path ? 'pointer' : 'not-allowed',
+              }}
               title={!item.path ? 'Coming soon' : undefined}
             >
               <span>{item.icon}</span>
@@ -234,7 +236,7 @@ export default function MentorDashboard() {
                 <div className="jobs-form-group">
                   <label>Review</label>
                   <textarea rows={4}
-                    placeholder="Describe the fresher's work quality, communication, creativity, and professionalism. Be specific — this helps clients trust them."
+                    placeholder="Describe the fresher's work quality, communication, creativity, and professionalism..."
                     value={reviewText}
                     onChange={e => setReviewText(e.target.value)}
                     required />
@@ -252,10 +254,9 @@ export default function MentorDashboard() {
           <div>
             {submitted.length > 0 && (
               <div className="jobs-success-banner" style={{ marginBottom: 20 }}>
-                ✅ {submitted.length} review{submitted.length > 1 ? 's' : ''} submitted — the fresher has been notified!
+                ✅ {submitted.length} review{submitted.length > 1 ? 's' : ''} submitted!
               </div>
             )}
-
             {loadingPending ? (
               <div className="mentor-loading">Loading pending reviews...</div>
             ) : pendingQueue.length === 0 ? (
@@ -284,20 +285,16 @@ export default function MentorDashboard() {
                       </div>
                       <span className="mentor-needs-review-badge">Needs review</span>
                     </div>
-
                     <div className="mentor-job-title">{app.job.title}</div>
                     <div className="mentor-job-skills">{app.job.skills}</div>
-
                     <div className="mentor-card-footer">
                       <div className="mentor-completed-date">
                         Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
                           day: 'numeric', month: 'short', year: 'numeric',
                         })}
                       </div>
-                      <button
-                        className="mentor-write-btn"
-                        onClick={() => { setReviewing(app.id); setSubmitError(''); }}
-                      >
+                      <button className="mentor-write-btn"
+                        onClick={() => { setReviewing(app.id); setSubmitError(''); }}>
                         ⭐ Write review
                       </button>
                     </div>
@@ -316,9 +313,7 @@ export default function MentorDashboard() {
               <div className="mentor-empty">
                 <div className="mentor-empty-icon">📝</div>
                 <div className="mentor-empty-title">No reviews yet</div>
-                <div className="mentor-empty-sub">
-                  Your submitted reviews will appear here.
-                </div>
+                <div className="mentor-empty-sub">Your submitted reviews will appear here.</div>
               </div>
             ) : (
               <div className="mentor-cards">
@@ -340,10 +335,8 @@ export default function MentorDashboard() {
                         {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                       </div>
                     </div>
-
                     <div className="mentor-job-title">{review.application.job.title}</div>
                     <div className="mentor-review-text">"{review.review}"</div>
-
                     <div className="mentor-card-footer">
                       <div className="mentor-completed-date">
                         Reviewed {new Date(review.createdAt).toLocaleDateString('en-IN', {
