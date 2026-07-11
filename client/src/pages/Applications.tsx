@@ -82,6 +82,14 @@ const statusConfig = {
 
 function MentorView() {
   const [queue, setQueue] = useState<PendingReview[]>([]);
+  const [myReviews, setMyReviews] = useState<{
+    id: number;
+    rating: number;
+    review: string;
+    createdAt: string;
+    fresher: { id: number; name: string; profile: { tier: number | null } | null };
+    application: { job: { id: number; title: string } };
+  }[]>([]);
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState<number | null>(null);
   const [rating, setRating] = useState(5);
@@ -89,14 +97,18 @@ function MentorView() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitted, setSubmitted] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
 
   useEffect(() => {
-    api.get('/reviews/pending')
-      .then(res => {
-        const data = res.data as { applications: PendingReview[] };
-        setQueue(data.applications);
-      })
-      .catch(console.error)
+    Promise.all([
+      api.get('/reviews/pending'),
+      api.get('/reviews/my'),
+    ]).then(([pendingRes, myRes]) => {
+      const pendingData = pendingRes.data as { applications: PendingReview[] };
+      const myData = myRes.data as { reviews: typeof myReviews };
+      setQueue(pendingData.applications);
+      setMyReviews(myData.reviews);
+    }).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
@@ -122,7 +134,7 @@ function MentorView() {
     }
   };
 
-  if (loading) return <div className="apps-loading">Loading review queue...</div>;
+  if (loading) return <div className="apps-loading">Loading reviews...</div>;
 
   const pendingQueue = queue.filter(a => !submitted.includes(a.id));
 
@@ -133,7 +145,7 @@ function MentorView() {
           <div className="jobs-modal" onClick={e => e.stopPropagation()}>
             <button className="jobs-modal-close" onClick={() => setReviewing(null)}>✕</button>
             <h2 className="jobs-modal-title">Write a review</h2>
-            <p className="jobs-modal-sub">Your review will appear on the fresher's career passport.</p>
+            <p className="jobs-modal-sub">Your review appears on the fresher's career passport permanently.</p>
             <form onSubmit={handleSubmitReview} className="jobs-post-form">
               <div className="jobs-form-group">
                 <label>Rating</label>
@@ -150,13 +162,11 @@ function MentorView() {
               </div>
               <div className="jobs-form-group">
                 <label>Review</label>
-                <textarea
-                  rows={4}
+                <textarea rows={4}
                   placeholder="Describe the fresher's work quality, communication, and professionalism..."
                   value={reviewText}
                   onChange={e => setReviewText(e.target.value)}
-                  required
-                />
+                  required />
               </div>
               {submitError && <div className="jobs-form-error">{submitError}</div>}
               <button type="submit" className="jobs-form-submit" disabled={submitting}>
@@ -167,59 +177,118 @@ function MentorView() {
         </div>
       )}
 
-      {submitted.length > 0 && (
-        <div className="jobs-success-banner" style={{ marginBottom: 20 }}>
-          ✅ Review submitted! The fresher has been notified.
-        </div>
+      <div className="mentor-tabs" style={{ marginBottom: 20 }}>
+        <button
+          className={`mentor-tab ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}
+        >
+          ⏳ Pending
+          {pendingQueue.length > 0 && (
+            <span className="mentor-tab-badge">{pendingQueue.length}</span>
+          )}
+        </button>
+        <button
+          className={`mentor-tab ${activeTab === 'completed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('completed')}
+        >
+          ✅ Completed ({myReviews.length + submitted.length})
+        </button>
+      </div>
+
+      {activeTab === 'pending' && (
+        <>
+          {submitted.length > 0 && (
+            <div className="jobs-success-banner" style={{ marginBottom: 16 }}>
+              ✅ {submitted.length} review{submitted.length > 1 ? 's' : ''} submitted!
+            </div>
+          )}
+          {pendingQueue.length === 0 ? (
+            <div className="apps-empty">
+              <div className="apps-empty-icon">🎉</div>
+              <div className="apps-empty-title">All caught up!</div>
+              <div className="apps-empty-sub">No pending reviews right now.</div>
+            </div>
+          ) : (
+            <div className="apps-list">
+              {pendingQueue.map(app => (
+                <div key={app.id} className="app-card">
+                  <div className="app-card-top">
+                    <div className="app-fresher-info">
+                      <div className="app-fresher-avatar">
+                        {app.fresher.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="app-fresher-name">{app.fresher.name}</div>
+                        <div className="app-fresher-meta">
+                          Tier {app.fresher.profile?.tier || 1} Fresher
+                        </div>
+                      </div>
+                    </div>
+                    <span className="app-status-badge" style={{ color: '#7C3AED', background: '#EEF0FF' }}>
+                      Needs review
+                    </span>
+                  </div>
+                  <div className="app-job-title">{app.job.title}</div>
+                  <div className="app-skills" style={{ marginBottom: 14 }}>{app.job.skills}</div>
+                  <div className="app-date" style={{ marginBottom: 12 }}>
+                    Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric',
+                    })}
+                  </div>
+                  <button className="app-btn-complete"
+                    onClick={() => { setReviewing(app.id); setSubmitError(''); }}>
+                    ⭐ Write review
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {pendingQueue.length === 0 ? (
-        <div className="apps-empty">
-          <div className="apps-empty-icon">⭐</div>
-          <div className="apps-empty-title">No reviews pending</div>
-          <div className="apps-empty-sub">
-            Completed jobs will appear here when they need a mentor review.
-          </div>
-        </div>
-      ) : (
-        <div className="apps-list">
-          {pendingQueue.map(app => (
-            <div key={app.id} className="app-card">
-              <div className="app-card-top">
-                <div className="app-fresher-info">
-                  <div className="app-fresher-avatar">
-                    {app.fresher.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="app-fresher-name">{app.fresher.name}</div>
-                    <div className="app-fresher-meta">
-                      Tier {app.fresher.profile?.tier || 1} Fresher
+      {activeTab === 'completed' && (
+        <>
+          {myReviews.length === 0 && submitted.length === 0 ? (
+            <div className="apps-empty">
+              <div className="apps-empty-icon">📝</div>
+              <div className="apps-empty-title">No reviews yet</div>
+              <div className="apps-empty-sub">Your submitted reviews will appear here.</div>
+            </div>
+          ) : (
+            <div className="apps-list">
+              {myReviews.map(review => (
+                <div key={review.id} className="app-card">
+                  <div className="app-card-top">
+                    <div className="app-fresher-info">
+                      <div className="app-fresher-avatar">
+                        {review.fresher.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="app-fresher-name">{review.fresher.name}</div>
+                        <div className="app-fresher-meta">
+                          Tier {review.fresher.profile?.tier || 1} Fresher
+                        </div>
+                      </div>
+                    </div>
+                    <div className="app-review-stars">
+                      {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                     </div>
                   </div>
+                  <div className="app-job-title">{review.application.job.title}</div>
+                  <div className="app-cover-letter">
+                    <div className="app-cover-label">Your review</div>
+                    <div className="app-cover-text">"{review.review}"</div>
+                  </div>
+                  <div className="app-date">
+                    Reviewed {new Date(review.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric',
+                    })}
+                  </div>
                 </div>
-                <span className="app-status-badge" style={{ color: '#7C3AED', background: '#EEF0FF' }}>
-                  Needs review
-                </span>
-              </div>
-
-              <div className="app-job-title">{app.job.title}</div>
-              <div className="app-skills" style={{ marginBottom: 14 }}>{app.job.skills}</div>
-
-              <div className="app-date" style={{ marginBottom: 12 }}>
-                Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
-                  day: 'numeric', month: 'short', year: 'numeric',
-                })}
-              </div>
-
-              <button
-                className="app-btn-complete"
-                onClick={() => { setReviewing(app.id); setSubmitError(''); }}
-              >
-                ⭐ Write review
-              </button>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );
