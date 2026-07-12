@@ -38,6 +38,11 @@ model User {
 
   profile      Profile?
   skills       UserSkill[]
+  jobs        Job[]
+  applications    Application[]  @relation("FresherApplications")
+mentorReviews   MentorReview[] @relation("MentorReviews")
+fresherReviews  MentorReview[] @relation("FresherReviews")
+portfolio     PortfolioItem[]
 }
 
 model Profile {
@@ -69,4 +74,70 @@ model UserSkill {
   skill    Skill   @relation(fields: [skillId], references: [id])
 
   @@unique([userId, skillId])
+}
+model Job {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String    @db.Text
+  budget      Float
+  tierRequired Int      @default(1)
+  skills      String
+  isRemote    Boolean   @default(true)
+  status      JobStatus @default(OPEN)
+  clientId    Int
+  client      User      @relation(fields: [clientId], references: [id])
+  createdAt   DateTime  @default(now())
+  applications Application[]
+  updatedAt   DateTime  @updatedAt
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  IN_PROGRESS
+}
+model Application {
+  id          Int               @id @default(autoincrement())
+  jobId       Int
+  fresherId   Int
+  coverLetter String?           @db.Text
+  status      ApplicationStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  job         Job               @relation(fields: [jobId], references: [id])
+  fresher     User              @relation("FresherApplications", fields: [fresherId], references: [id])
+  review      MentorReview?
+  @@unique([jobId, fresherId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+model MentorReview {
+  id            Int         @id @default(autoincrement())
+  applicationId Int         @unique
+  mentorId      Int
+  fresherId     Int
+  rating        Int
+  review        String      @db.Text
+  createdAt     DateTime    @default(now())
+  application   Application @relation(fields: [applicationId], references: [id])
+  mentor        User        @relation("MentorReviews", fields: [mentorId], references: [id])
+  fresher       User        @relation("FresherReviews", fields: [fresherId], references: [id])
+}
+model PortfolioItem {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String   @db.Text
+  techStack   String
+  githubUrl   String?
+  liveUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
 }
