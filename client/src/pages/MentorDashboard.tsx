@@ -27,6 +27,7 @@ const navItems = [
   { icon: '💼', label: 'Jobs', path: '/jobs' },
   { icon: '📋', label: 'Applications', path: '/applications' },
   { icon: '⭐', label: 'Review Queue', path: '/mentor' },
+  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
   { icon: '🗺️', label: 'Roadmap', path: null },
   { icon: '👥', label: 'Community', path: null },
   { icon: '💬', label: 'Messages', path: null },

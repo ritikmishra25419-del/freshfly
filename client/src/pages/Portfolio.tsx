@@ -60,17 +60,20 @@ export default function Portfolio() {
   const [formError, setFormError] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
-
+  const isFresher = user?.role === 'FRESHER';
   useEffect(() => {
-    api.get('/portfolio/my')
-      .then(res => {
-        const data = res.data as { items: PortfolioItem[] };
-        setItems(data.items);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
+  if (!isFresher) {
+    setLoading(false);
+    return;
+  }
+  api.get('/portfolio/my')
+    .then(res => {
+      const data = res.data as { items: PortfolioItem[] };
+      setItems(data.items);
+    })
+    .catch(console.error)
+    .finally(() => setLoading(false));
+}, [isFresher]);
   const openAddForm = () => {
     setForm(emptyForm);
     setEditingId(null);
@@ -130,7 +133,7 @@ export default function Portfolio() {
     }
   };
 
-  const isFresher = user?.role === 'FRESHER';
+  
 
   return (
     <div className="port-page">
@@ -279,22 +282,30 @@ export default function Portfolio() {
         {loading ? (
           <div className="port-loading">Loading portfolio...</div>
         ) : items.length === 0 ? (
-          <div className="port-empty">
-            <div className="port-empty-icon">🗂️</div>
-            <div className="port-empty-title">
-              {isFresher ? 'Your portfolio is empty' : 'No projects yet'}
-            </div>
-            <div className="port-empty-sub">
-              {isFresher
-                ? 'Add your first project — even a practice project counts! Clients look at portfolios before hiring.'
-                : 'This user has not added any projects yet.'}
-            </div>
-            {isFresher && (
-              <button className="port-add-btn" style={{ marginTop: 20 }} onClick={openAddForm}>
-                + Add your first project
-              </button>
-            )}
-          </div>
+  <div className="port-empty">
+    <div className="port-empty-icon">🗂️</div>
+    <div className="port-empty-title">
+      {isFresher ? 'Your portfolio is empty' : 'Portfolio is for freshers'}
+    </div>
+    <div className="port-empty-sub">
+      {isFresher
+        ? 'Add your first project — even a practice project counts! Clients look at portfolios before hiring.'
+        : user?.role === 'CLIENT'
+        ? 'Freelancers build portfolios here to showcase their work. Browse the job board to find freshers and view their portfolios.'
+        : 'Freshers use this page to showcase their projects. You can view a fresher\'s portfolio from their profile.'}
+    </div>
+    {isFresher && (
+      <button className="port-add-btn" style={{ marginTop: 20 }} onClick={openAddForm}>
+        + Add your first project
+      </button>
+    )}
+    {!isFresher && (
+      <button className="port-add-btn" style={{ marginTop: 20 }}
+        onClick={() => navigate('/jobs')}>
+        {user?.role === 'CLIENT' ? 'Browse jobs →' : 'Go to jobs →'}
+      </button>
+    )}
+  </div>
         ) : (
           <div className="port-grid">
             {items.map(item => (

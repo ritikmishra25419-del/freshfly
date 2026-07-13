@@ -54,7 +54,7 @@ const navItems = [
   { icon: '🏠', label: 'Home', path: '/profile' },
   { icon: '💼', label: 'Jobs', path: '/jobs' },
   { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: null },
+  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
   { icon: '🪪', label: 'Career Passport', path: null },
   { icon: '🗺️', label: 'Roadmap', path: null },
   { icon: '👥', label: 'Community', path: null },
