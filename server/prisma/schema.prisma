@@ -43,6 +43,7 @@ model User {
 mentorReviews   MentorReview[] @relation("MentorReviews")
 fresherReviews  MentorReview[] @relation("FresherReviews")
 portfolio     PortfolioItem[]
+notifications Notification[]
 }
 
 model Profile {
@@ -140,4 +141,24 @@ model PortfolioItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id])
+}
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id])
+}
+
+enum NotificationType {
+  APPLICATION_ACCEPTED
+  APPLICATION_REJECTED
+  APPLICATION_COMPLETED
+  MENTOR_REVIEW
+  TIER_UPGRADE
+  NEW_APPLICANT
+  JOB_POSTED
 }
