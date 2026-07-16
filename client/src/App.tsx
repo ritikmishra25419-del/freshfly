@@ -8,6 +8,8 @@ import Jobs from './pages/Jobs';
 import Applications from './pages/Applications';
 import MentorDashboard from './pages/MentorDashboard';
 import Portfolio from './pages/Portfolio';
+import CareerPassport from './pages/CareerPassport';
+import Notifications from './pages/Notifications';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -38,6 +40,15 @@ function App() {
             } />
             <Route path="/portfolio" element={
               <ProtectedRoute><Portfolio /></ProtectedRoute>
+            } />
+            <Route path="/passport" element={
+              <ProtectedRoute><CareerPassport /></ProtectedRoute>
+            } />
+            <Route path="/passport/:userId" element={
+              <ProtectedRoute><CareerPassport /></ProtectedRoute>
+            } />
+            <Route path="/notifications" element={
+              <ProtectedRoute><Notifications /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
