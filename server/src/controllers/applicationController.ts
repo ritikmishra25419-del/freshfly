@@ -1,3 +1,4 @@
+import { createNotification } from "./notificationController";
 import { Response } from "express";
 import prisma from "../config/prisma";
 import type { AuthRequest } from "../middleware/authMiddleware";
@@ -32,6 +33,13 @@ export const applyToJob = async (req: AuthRequest, res: Response) => {
         fresher: { select: { id: true, name: true, email: true } },
       },
     });
+
+    await createNotification(
+      job.clientId,
+      'NEW_APPLICANT',
+      '👤 New applicant!',
+      `Someone applied to your job "${job.title}". Review their application now.`
+    );
 
     res.status(201).json({ message: "Application submitted.", application });
   } catch (err) {
@@ -122,6 +130,29 @@ export const updateApplicationStatus = async (req: AuthRequest, res: Response) =
         job: { select: { id: true, title: true } },
       },
     });
+
+    if (status === 'ACCEPTED') {
+      await createNotification(
+        updated.fresher.id,
+        'APPLICATION_ACCEPTED',
+        '🎉 Application accepted!',
+        `Your application for "${updated.job.title}" has been accepted. Get ready to start work!`
+      );
+    } else if (status === 'REJECTED') {
+      await createNotification(
+        updated.fresher.id,
+        'APPLICATION_REJECTED',
+        'Application update',
+        `Your application for "${updated.job.title}" was not selected this time. Keep applying!`
+      );
+    } else if (status === 'COMPLETED') {
+      await createNotification(
+        updated.fresher.id,
+        'APPLICATION_COMPLETED',
+        '✅ Job marked as completed!',
+        `"${updated.job.title}" has been marked complete. A mentor will review your work soon.`
+      );
+    }
 
     res.json({ message: `Application ${status.toLowerCase()}.`, application: updated });
   } catch (err) {
