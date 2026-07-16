@@ -60,11 +60,11 @@ const navItems = [
   { icon: '💼', label: 'Jobs', path: '/jobs' },
   { icon: '📋', label: 'Applications', path: '/applications' },
  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: null },
+  { icon: '🪪', label: 'Career Passport', path: '/passport' },
   { icon: '🗺️', label: 'Roadmap', path: null },
   { icon: '👥', label: 'Community', path: null },
   { icon: '💬', label: 'Messages', path: null },
-  { icon: '🔔', label: 'Notifications', path: null },
+  { icon: '🔔', label: 'Notifications', path: '/notifications' },
   { icon: '⚙️', label: 'Settings', path: null },
 ];
 

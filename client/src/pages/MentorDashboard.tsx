@@ -31,7 +31,7 @@ const navItems = [
   { icon: '🗺️', label: 'Roadmap', path: null },
   { icon: '👥', label: 'Community', path: null },
   { icon: '💬', label: 'Messages', path: null },
-  { icon: '🔔', label: 'Notifications', path: null },
+  { icon: '🔔', label: 'Notifications', path: '/notifications' },
   { icon: '⚙️', label: 'Settings', path: null },
 ];
 
