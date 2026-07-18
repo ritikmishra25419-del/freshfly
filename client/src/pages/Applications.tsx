@@ -22,7 +22,7 @@ interface Application {
     id: number;
     rating: number;
     review: string;
-    mentor: { name: string };
+    mentor?: { name: string };
   } | null;
 }
 
@@ -55,11 +55,20 @@ interface PendingReview {
   createdAt: string;
 }
 
+interface MentorReview {
+  id: number;
+  rating: number;
+  review: string;
+  createdAt: string;
+  fresher?: { id: number; name: string; profile?: { tier: number | null } | null };
+  application?: { job?: { id: number; title: string } };
+}
+
 const navItems = [
   { icon: '🏠', label: 'Home', path: '/profile' },
   { icon: '💼', label: 'Jobs', path: '/jobs' },
   { icon: '📋', label: 'Applications', path: '/applications' },
- { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
+  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
   { icon: '🪪', label: 'Career Passport', path: '/passport' },
   { icon: '🗺️', label: 'Roadmap', path: null },
   { icon: '👥', label: 'Community', path: null },
@@ -82,14 +91,7 @@ const statusConfig = {
 
 function MentorView() {
   const [queue, setQueue] = useState<PendingReview[]>([]);
-  const [myReviews, setMyReviews] = useState<{
-    id: number;
-    rating: number;
-    review: string;
-    createdAt: string;
-    fresher: { id: number; name: string; profile: { tier: number | null } | null };
-    application: { job: { id: number; title: string } };
-  }[]>([]);
+  const [myReviews, setMyReviews] = useState<MentorReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState<number | null>(null);
   const [rating, setRating] = useState(5);
@@ -105,7 +107,7 @@ function MentorView() {
       api.get('/reviews/my'),
     ]).then(([pendingRes, myRes]) => {
       const pendingData = pendingRes.data as { applications: PendingReview[] };
-      const myData = myRes.data as { reviews: typeof myReviews };
+      const myData = myRes.data as { reviews: MentorReview[] };
       setQueue(pendingData.applications);
       setMyReviews(myData.reviews);
     }).catch(console.error)
@@ -141,13 +143,13 @@ function MentorView() {
   return (
     <div>
       {reviewing !== null && (
-        <div className="jobs-modal-overlay" onClick={() => setReviewing(null)}>
-          <div className="jobs-modal" onClick={e => e.stopPropagation()}>
-            <button className="jobs-modal-close" onClick={() => setReviewing(null)}>✕</button>
-            <h2 className="jobs-modal-title">Write a review</h2>
-            <p className="jobs-modal-sub">Your review appears on the fresher's career passport permanently.</p>
-            <form onSubmit={handleSubmitReview} className="jobs-post-form">
-              <div className="jobs-form-group">
+        <div className="apps-modal-overlay" onClick={() => setReviewing(null)}>
+          <div className="apps-modal" onClick={e => e.stopPropagation()}>
+            <button className="apps-modal-close" onClick={() => setReviewing(null)}>✕</button>
+            <h2 className="apps-modal-title">Write a review</h2>
+            <p className="apps-modal-sub">Your review appears on the fresher's career passport permanently.</p>
+            <form onSubmit={handleSubmitReview} className="apps-form">
+              <div className="apps-form-group">
                 <label>Rating</label>
                 <div className="mentor-stars">
                   {[1, 2, 3, 4, 5].map(s => (
@@ -160,7 +162,7 @@ function MentorView() {
                   <span className="mentor-star-label">{rating}/5</span>
                 </div>
               </div>
-              <div className="jobs-form-group">
+              <div className="apps-form-group">
                 <label>Review</label>
                 <textarea rows={4}
                   placeholder="Describe the fresher's work quality, communication, and professionalism..."
@@ -168,8 +170,8 @@ function MentorView() {
                   onChange={e => setReviewText(e.target.value)}
                   required />
               </div>
-              {submitError && <div className="jobs-form-error">{submitError}</div>}
-              <button type="submit" className="jobs-form-submit" disabled={submitting}>
+              {submitError && <div className="apps-form-error">{submitError}</div>}
+              <button type="submit" className="apps-form-submit" disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit review →'}
               </button>
             </form>
@@ -198,7 +200,7 @@ function MentorView() {
       {activeTab === 'pending' && (
         <>
           {submitted.length > 0 && (
-            <div className="jobs-success-banner" style={{ marginBottom: 16 }}>
+            <div className="apps-success-banner" style={{ marginBottom: 16 }}>
               ✅ {submitted.length} review{submitted.length > 1 ? 's' : ''} submitted!
             </div>
           )}
@@ -215,12 +217,12 @@ function MentorView() {
                   <div className="app-card-top">
                     <div className="app-fresher-info">
                       <div className="app-fresher-avatar">
-                        {app.fresher.name.charAt(0).toUpperCase()}
+                        {app.fresher?.name?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div>
-                        <div className="app-fresher-name">{app.fresher.name}</div>
+                        <div className="app-fresher-name">{app.fresher?.name || 'Unknown'}</div>
                         <div className="app-fresher-meta">
-                          Tier {app.fresher.profile?.tier || 1} Fresher
+                          Tier {app.fresher?.profile?.tier || 1} Fresher
                         </div>
                       </div>
                     </div>
@@ -228,8 +230,8 @@ function MentorView() {
                       Needs review
                     </span>
                   </div>
-                  <div className="app-job-title">{app.job.title}</div>
-                  <div className="app-skills" style={{ marginBottom: 14 }}>{app.job.skills}</div>
+                  <div className="app-job-title">{app.job?.title || 'Project'}</div>
+                  <div className="app-skills" style={{ marginBottom: 14 }}>{app.job?.skills}</div>
                   <div className="app-date" style={{ marginBottom: 12 }}>
                     Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
                       day: 'numeric', month: 'short', year: 'numeric',
@@ -261,12 +263,12 @@ function MentorView() {
                   <div className="app-card-top">
                     <div className="app-fresher-info">
                       <div className="app-fresher-avatar">
-                        {review.fresher.name.charAt(0).toUpperCase()}
+                        {review.fresher?.name?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div>
-                        <div className="app-fresher-name">{review.fresher.name}</div>
+                        <div className="app-fresher-name">{review.fresher?.name || 'Unknown'}</div>
                         <div className="app-fresher-meta">
-                          Tier {review.fresher.profile?.tier || 1} Fresher
+                          Tier {review.fresher?.profile?.tier || 1} Fresher
                         </div>
                       </div>
                     </div>
@@ -274,7 +276,7 @@ function MentorView() {
                       {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                     </div>
                   </div>
-                  <div className="app-job-title">{review.application.job.title}</div>
+                  <div className="app-job-title">{review.application?.job?.title || 'Project'}</div>
                   <div className="app-cover-letter">
                     <div className="app-cover-label">Your review</div>
                     <div className="app-cover-text">"{review.review}"</div>
@@ -432,8 +434,8 @@ export default function Applications() {
                   <div key={app.id} className="app-card">
                     <div className="app-card-top">
                       <div>
-                        <div className="app-job-title">{app.job.title}</div>
-                        <div className="app-client-name">by {app.job.client.name}</div>
+                        <div className="app-job-title">{app.job?.title}</div>
+                        <div className="app-client-name">by {app.job?.client?.name}</div>
                       </div>
                       <span className="app-status-badge" style={{ color: sc.color, background: sc.bg }}>
                         {sc.label}
@@ -441,8 +443,8 @@ export default function Applications() {
                     </div>
 
                     <div className="app-job-meta">
-                      <span className="app-budget">₹{app.job.budget.toLocaleString()}</span>
-                      <span className="app-skills">{app.job.skills}</span>
+                      <span className="app-budget">₹{app.job?.budget?.toLocaleString()}</span>
+                      <span className="app-skills">{app.job?.skills}</span>
                     </div>
 
                     {app.coverLetter && (
@@ -461,7 +463,9 @@ export default function Applications() {
                           </span>
                         </div>
                         <div className="app-review-text">{app.review.review}</div>
-                        <div className="app-review-mentor">— {app.review.mentor.name}</div>
+                        {app.review.mentor && (
+                          <div className="app-review-mentor">— {app.review.mentor.name}</div>
+                        )}
                       </div>
                     )}
 
@@ -477,9 +481,7 @@ export default function Applications() {
           )
         )}
 
-        {user?.role === 'MENTOR' && (
-          <MentorView />
-        )}
+        {user?.role === 'MENTOR' && <MentorView />}
 
         {user?.role === 'CLIENT' && (
           <div className="apps-client-view">
@@ -523,13 +525,13 @@ export default function Applications() {
                           <div className="app-card-top">
                             <div className="app-fresher-info">
                               <div className="app-fresher-avatar">
-                                {app.fresher.name.charAt(0).toUpperCase()}
+                                {app.fresher?.name?.charAt(0).toUpperCase() || '?'}
                               </div>
                               <div>
-                                <div className="app-fresher-name">{app.fresher.name}</div>
+                                <div className="app-fresher-name">{app.fresher?.name}</div>
                                 <div className="app-fresher-meta">
-                                  Tier {app.fresher.profile?.tier || 1}
-                                  {app.fresher.profile?.hourlyRate && ` · $${app.fresher.profile.hourlyRate}/hr`}
+                                  Tier {app.fresher?.profile?.tier || 1}
+                                  {app.fresher?.profile?.hourlyRate && ` · $${app.fresher.profile.hourlyRate}/hr`}
                                 </div>
                               </div>
                             </div>
@@ -538,7 +540,7 @@ export default function Applications() {
                             </span>
                           </div>
 
-                          {app.fresher.profile?.bio && (
+                          {app.fresher?.profile?.bio && (
                             <div className="app-fresher-bio">{app.fresher.profile.bio}</div>
                           )}
 
