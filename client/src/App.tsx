@@ -10,6 +10,7 @@ import MentorDashboard from './pages/MentorDashboard';
 import Portfolio from './pages/Portfolio';
 import CareerPassport from './pages/CareerPassport';
 import Notifications from './pages/Notifications';
+import Settings from './pages/Settings';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -49,6 +50,9 @@ function App() {
             } />
             <Route path="/notifications" element={
               <ProtectedRoute><Notifications /></ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute><Settings /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
