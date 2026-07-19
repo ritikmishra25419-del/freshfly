@@ -76,4 +76,41 @@ export const updateMyProfile = async (req: AuthRequest, res: Response) => {
     console.error("Update profile error:", err);
     res.status(500).json({ message: "Something went wrong updating profile." });
   }
+
+};
+import bcrypt from 'bcrypt';
+
+export const changePassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Both current and new password are required." });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters." });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!user || !user.passwordHash) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!matches) {
+      return res.status(401).json({ message: "Current password is incorrect." });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: req.userId },
+      data: { passwordHash: newHash },
+    });
+
+    res.json({ message: "Password changed successfully." });
+  } catch (err) {
+    console.error("Change password error:", err);
+    res.status(500).json({ message: "Something went wrong." });
+  }
 };
