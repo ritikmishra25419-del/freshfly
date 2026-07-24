@@ -148,21 +148,24 @@
   font-size: 15px;
 }
 
-.port-empty {
+.port-not-fresher {
   text-align: center;
   padding: 80px 40px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
-.port-empty-icon { font-size: 52px; margin-bottom: 16px; }
+.port-not-fresher-icon { font-size: 48px; margin-bottom: 16px; }
 
-.port-empty-title {
+.port-not-fresher-title {
   font-size: 20px;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
 
-.port-empty-sub {
+.port-not-fresher-sub {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.7;
@@ -179,42 +182,126 @@
 .port-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 22px;
+  border-radius: 16px;
+  overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .port-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
 .port-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.port-card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--gradient);
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 20px;
-  font-weight: 800;
-  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.port-card-actions { display: flex; gap: 6px; align-items: center; }
+.port-card-symbol {
+  font-size: 52px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.2);
+  user-select: none;
+  letter-spacing: -2px;
+}
+
+.port-card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.port-card:hover .port-card-overlay { opacity: 1; }
+
+.port-card-overlay-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.port-card-overlay-links { display: flex; gap: 8px; }
+
+.port-overlay-link {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.port-overlay-link:hover { background: rgba(255,255,255,0.3); }
+
+.port-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.port-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.port-card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.port-card-tech {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.port-tech-tag {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.port-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.port-card-date { font-size: 11px; color: var(--text-muted); }
+
+.port-card-actions { display: flex; gap: 6px; }
 
 .port-edit-btn {
   background: var(--primary-light);
@@ -245,74 +332,51 @@
 
 .port-delete-btn:hover { background: #EF4444; color: white; }
 
-.port-card-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.3px;
-}
-
-.port-card-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.port-card-tech {
+.port-add-card {
+  border: 2px dashed var(--border);
+  border-radius: 16px;
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-height: 200px;
 }
 
-.port-tech-tag {
+.port-add-card:hover {
+  border-color: var(--primary);
   background: var(--primary-light);
-  color: var(--primary);
-  font-size: 11px;
+  transform: translateY(-2px);
+}
+
+.port-add-card-icon {
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  transition: color 0.2s;
+}
+
+.port-add-card:hover .port-add-card-icon { color: var(--primary); }
+
+.port-add-card-title {
+  font-size: 15px;
   font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 6px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  transition: color 0.2s;
 }
 
-.port-card-links {
-  display: flex;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-  margin-top: auto;
-}
+.port-add-card:hover .port-add-card-title { color: var(--primary); }
 
-.port-link {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 7px;
-  text-decoration: none;
-  transition: all 0.15s;
-}
-
-.port-link-github {
-  background: #1F2937;
-  color: white;
-}
-
-.port-link-github:hover { background: #111827; }
-
-.port-link-live {
-  background: var(--primary);
-  color: white;
-}
-
-.port-link-live:hover { background: var(--primary-dark); }
-
-.port-no-links {
+.port-add-card-sub {
   font-size: 12px;
   color: var(--text-muted);
-  font-style: italic;
-}
-
-.port-card-date {
-  font-size: 11px;
-  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 200px;
 }
 
 .port-modal-overlay {
@@ -365,7 +429,6 @@
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 6px;
-  letter-spacing: -0.3px;
 }
 
 .port-modal-sub {
@@ -432,7 +495,6 @@
   cursor: pointer;
   font-family: var(--font);
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .port-form-submit:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
@@ -494,4 +556,4 @@
   transition: all 0.2s;
 }
 
-.port-confirm-cancel:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.port-confirm-cancel:hover { border-color: var(--text-secondary); }
