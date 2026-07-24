@@ -34,13 +34,26 @@ const navItems = [
   { icon: '👥', label: 'Community', path: null },
   { icon: '💬', label: 'Messages', path: null },
   { icon: '🔔', label: 'Notifications', path: '/notifications' },
- { icon: '⚙️', label: 'Settings', path: '/settings' },
+  { icon: '⚙️', label: 'Settings', path: '/settings' },
 ];
 
 const themeColors: Record<string, string> = {
   ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
   midnight: '#3B82F6', neon: '#FF0080',
 };
+
+const cardGradients = [
+  'linear-gradient(135deg, #5B5FFF, #818cf8)',
+  'linear-gradient(135deg, #10b981, #6ee7b7)',
+  'linear-gradient(135deg, #f59e0b, #fcd34d)',
+  'linear-gradient(135deg, #ef4444, #fca5a5)',
+  'linear-gradient(135deg, #8b5cf6, #c4b5fd)',
+  'linear-gradient(135deg, #0ea5e9, #7dd3fc)',
+  'linear-gradient(135deg, #f97316, #fdba74)',
+  'linear-gradient(135deg, #ec4899, #f9a8d4)',
+];
+
+const cardSymbols = ['</>', 'API', 'UI', '{}', '#', '✦', '<>', '→'];
 
 const emptyForm: PortfolioForm = {
   title: '', description: '', techStack: '', githubUrl: '', liveUrl: '',
@@ -51,6 +64,8 @@ export default function Portfolio() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
+  const isFresher = user?.role === 'FRESHER';
+
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -60,20 +75,18 @@ export default function Portfolio() {
   const [formError, setFormError] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
-  const isFresher = user?.role === 'FRESHER';
+
   useEffect(() => {
-  if (!isFresher) {
-    setLoading(false);
-    return;
-  }
-  api.get('/portfolio/my')
-    .then(res => {
-      const data = res.data as { items: PortfolioItem[] };
-      setItems(data.items);
-    })
-    .catch(console.error)
-    .finally(() => setLoading(false));
-}, [isFresher]);
+    if (!isFresher) { setLoading(false); return; }
+    api.get('/portfolio/my')
+      .then(res => {
+        const data = res.data as { items: PortfolioItem[] };
+        setItems(data.items);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [isFresher]);
+
   const openAddForm = () => {
     setForm(emptyForm);
     setEditingId(null);
@@ -103,7 +116,7 @@ export default function Portfolio() {
         const res = await api.put(`/portfolio/${editingId}`, form);
         const data = res.data as { item: PortfolioItem };
         setItems(prev => prev.map(i => i.id === editingId ? data.item : i));
-        setSuccessMsg('Project updated successfully!');
+        setSuccessMsg('Project updated!');
       } else {
         const res = await api.post('/portfolio', form);
         const data = res.data as { item: PortfolioItem };
@@ -126,14 +139,12 @@ export default function Portfolio() {
       await api.delete(`/portfolio/${id}`);
       setItems(prev => prev.filter(i => i.id !== id));
       setDeleteConfirm(null);
-      setSuccessMsg('Project removed from portfolio.');
+      setSuccessMsg('Project removed.');
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (err) {
       console.error(err);
     }
   };
-
-  
 
   return (
     <div className="port-page">
@@ -184,8 +195,8 @@ export default function Portfolio() {
             <h1 className="port-title">Portfolio</h1>
             <p className="port-subtitle">
               {isFresher
-                ? 'Showcase your projects — clients browse this when deciding who to hire'
-                : 'Viewing portfolio projects'}
+                ? `${items.length} project${items.length !== 1 ? 's' : ''} · visible to clients`
+                : 'Portfolio projects are created by freshers'}
             </p>
           </div>
           {isFresher && (
@@ -207,9 +218,7 @@ export default function Portfolio() {
                 {editingId ? 'Edit project' : 'Add a project'}
               </h2>
               <p className="port-modal-sub">
-                {editingId
-                  ? 'Update your project details.'
-                  : 'Add a project to show clients what you can build.'}
+                {editingId ? 'Update your project details.' : 'Add a project to show clients what you can build.'}
               </p>
               <form onSubmit={handleSave} className="port-form">
                 <div className="port-form-group">
@@ -222,14 +231,14 @@ export default function Portfolio() {
                 <div className="port-form-group">
                   <label>Description</label>
                   <textarea rows={3}
-                    placeholder="What did you build? What problem does it solve? What was your role?"
+                    placeholder="What did you build? What problem does it solve?"
                     value={form.description}
                     onChange={e => setForm({ ...form, description: e.target.value })}
                     required />
                 </div>
                 <div className="port-form-group">
                   <label>Tech stack (comma separated)</label>
-                  <input type="text" placeholder="e.g. React, Node.js, MySQL, Tailwind"
+                  <input type="text" placeholder="e.g. React, Node.js, MySQL"
                     value={form.techStack}
                     onChange={e => setForm({ ...form, techStack: e.target.value })}
                     required />
@@ -262,16 +271,12 @@ export default function Portfolio() {
             <div className="port-confirm-modal" onClick={e => e.stopPropagation()}>
               <div className="port-confirm-icon">🗑️</div>
               <h3 className="port-confirm-title">Remove this project?</h3>
-              <p className="port-confirm-sub">
-                This will permanently remove the project from your portfolio.
-              </p>
+              <p className="port-confirm-sub">This will permanently remove it from your portfolio.</p>
               <div className="port-confirm-actions">
-                <button className="port-confirm-delete"
-                  onClick={() => handleDelete(deleteConfirm)}>
+                <button className="port-confirm-delete" onClick={() => handleDelete(deleteConfirm)}>
                   Yes, remove it
                 </button>
-                <button className="port-confirm-cancel"
-                  onClick={() => setDeleteConfirm(null)}>
+                <button className="port-confirm-cancel" onClick={() => setDeleteConfirm(null)}>
                   Cancel
                 </button>
               </div>
@@ -281,40 +286,66 @@ export default function Portfolio() {
 
         {loading ? (
           <div className="port-loading">Loading portfolio...</div>
-        ) : items.length === 0 ? (
-  <div className="port-empty">
-    <div className="port-empty-icon">🗂️</div>
-    <div className="port-empty-title">
-      {isFresher ? 'Your portfolio is empty' : 'Portfolio is for freshers'}
-    </div>
-    <div className="port-empty-sub">
-      {isFresher
-        ? 'Add your first project — even a practice project counts! Clients look at portfolios before hiring.'
-        : user?.role === 'CLIENT'
-        ? 'Freelancers build portfolios here to showcase their work. Browse the job board to find freshers and view their portfolios.'
-        : 'Freshers use this page to showcase their projects. You can view a fresher\'s portfolio from their profile.'}
-    </div>
-    {isFresher && (
-      <button className="port-add-btn" style={{ marginTop: 20 }} onClick={openAddForm}>
-        + Add your first project
-      </button>
-    )}
-    {!isFresher && (
-      <button className="port-add-btn" style={{ marginTop: 20 }}
-        onClick={() => navigate('/jobs')}>
-        {user?.role === 'CLIENT' ? 'Browse jobs →' : 'Go to jobs →'}
-      </button>
-    )}
-  </div>
+        ) : !isFresher ? (
+          <div className="port-not-fresher">
+            <div className="port-not-fresher-icon">🗂️</div>
+            <div className="port-not-fresher-title">Portfolio is for freshers</div>
+            <div className="port-not-fresher-sub">
+              {user?.role === 'CLIENT'
+                ? 'Freshers build portfolios here to showcase their work. Browse jobs to find talented freshers.'
+                : 'Freshers use this page to showcase their projects.'}
+            </div>
+            <button className="port-add-btn" style={{ marginTop: 20 }}
+              onClick={() => navigate('/jobs')}>
+              {user?.role === 'CLIENT' ? 'Browse jobs →' : 'Go to jobs →'}
+            </button>
+          </div>
         ) : (
           <div className="port-grid">
-            {items.map(item => (
-              <div key={item.id} className="port-card">
-                <div className="port-card-header">
-                  <div className="port-card-icon">
-                    {item.title.charAt(0).toUpperCase()}
+            {items.map((item, index) => {
+              const gradient = cardGradients[index % cardGradients.length];
+              const symbol = cardSymbols[index % cardSymbols.length];
+              return (
+                <div key={item.id} className="port-card">
+                  <div className="port-card-header" style={{ background: gradient }}>
+                    <div className="port-card-symbol">{symbol}</div>
+                    <div className="port-card-overlay">
+                      <div className="port-card-overlay-title">{item.title}</div>
+                      <div className="port-card-overlay-links">
+                        {item.githubUrl && (
+                          <a href={item.githubUrl} target="_blank" rel="noreferrer"
+                            className="port-overlay-link"
+                            onClick={e => e.stopPropagation()}>
+                            GitHub →
+                          </a>
+                        )}
+                        {item.liveUrl && (
+                          <a href={item.liveUrl} target="_blank" rel="noreferrer"
+                            className="port-overlay-link"
+                            onClick={e => e.stopPropagation()}>
+                            Live demo →
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  {isFresher && (
+
+                  <div className="port-card-body">
+                    <div className="port-card-title">{item.title}</div>
+                    <div className="port-card-desc">{item.description}</div>
+                    <div className="port-card-tech">
+                      {item.techStack.split(',').map(t => (
+                        <span key={t} className="port-tech-tag">{t.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="port-card-footer">
+                    <div className="port-card-date">
+                      Added {new Date(item.createdAt).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
+                    </div>
                     <div className="port-card-actions">
                       <button className="port-edit-btn" onClick={() => openEditForm(item)}>
                         ✏️ Edit
@@ -324,43 +355,18 @@ export default function Portfolio() {
                         🗑️
                       </button>
                     </div>
-                  )}
+                  </div>
                 </div>
+              );
+            })}
 
-                <div className="port-card-title">{item.title}</div>
-                <div className="port-card-desc">{item.description}</div>
-
-                <div className="port-card-tech">
-                  {item.techStack.split(',').map(t => (
-                    <span key={t} className="port-tech-tag">{t.trim()}</span>
-                  ))}
-                </div>
-
-                <div className="port-card-links">
-                  {item.githubUrl && (
-                    <a href={item.githubUrl} target="_blank" rel="noreferrer"
-                      className="port-link port-link-github">
-                      GitHub →
-                    </a>
-                  )}
-                  {item.liveUrl && (
-                    <a href={item.liveUrl} target="_blank" rel="noreferrer"
-                      className="port-link port-link-live">
-                      Live demo →
-                    </a>
-                  )}
-                  {!item.githubUrl && !item.liveUrl && (
-                    <span className="port-no-links">No links added</span>
-                  )}
-                </div>
-
-                <div className="port-card-date">
-                  Added {new Date(item.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric', month: 'short', year: 'numeric',
-                  })}
-                </div>
+            <div className="port-add-card" onClick={openAddForm}>
+              <div className="port-add-card-icon">+</div>
+              <div className="port-add-card-title">Add a project</div>
+              <div className="port-add-card-sub">
+                Even a practice project counts. Clients look at portfolios before hiring.
               </div>
-            ))}
+            </div>
           </div>
         )}
       </div>
