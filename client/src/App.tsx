@@ -11,6 +11,7 @@ import Portfolio from './pages/Portfolio';
 import CareerPassport from './pages/CareerPassport';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
+import Roadmap from './pages/Roadmap';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -53,6 +54,9 @@ function App() {
             } />
             <Route path="/settings" element={
               <ProtectedRoute><Settings /></ProtectedRoute>
+            } />
+            <Route path="/roadmap" element={
+              <ProtectedRoute><Roadmap /></ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
