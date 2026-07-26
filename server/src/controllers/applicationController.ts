@@ -1,3 +1,4 @@
+import { createConversation } from "./messageController";
 import { createNotification } from "./notificationController";
 import { Response } from "express";
 import prisma from "../config/prisma";
@@ -132,13 +133,19 @@ export const updateApplicationStatus = async (req: AuthRequest, res: Response) =
     });
 
     if (status === 'ACCEPTED') {
-      await createNotification(
-        updated.fresher.id,
-        'APPLICATION_ACCEPTED',
-        '🎉 Application accepted!',
-        `Your application for "${updated.job.title}" has been accepted. Get ready to start work!`
-      );
-    } else if (status === 'REJECTED') {
+  await createNotification(
+    updated.fresher.id,
+    'APPLICATION_ACCEPTED',
+    '🎉 Application accepted!',
+    `Your application for "${updated.job.title}" has been accepted. Get ready to start work!`
+  );
+  await createConversation(
+    id,
+    updated.fresher.id,
+    req.userId!
+  );
+}
+     else if (status === 'REJECTED') {
       await createNotification(
         updated.fresher.id,
         'APPLICATION_REJECTED',
