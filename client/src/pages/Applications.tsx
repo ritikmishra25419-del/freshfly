@@ -72,7 +72,7 @@ const navItems = [
   { icon: '🪪', label: 'Career Passport', path: '/passport' },
   { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
   { icon: '👥', label: 'Community', path: null },
-  { icon: '💬', label: 'Messages', path: null },
+  { icon: '💬', label: 'Messages', path: '/messages' },
   { icon: '🔔', label: 'Notifications', path: '/notifications' },
   { icon: '⚙️', label: 'Settings', path: null },
 ];

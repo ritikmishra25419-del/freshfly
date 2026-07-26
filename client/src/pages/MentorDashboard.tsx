@@ -30,7 +30,7 @@ const navItems = [
   { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
   { icon: '👥', label: 'Community', path: null },
-  { icon: '💬', label: 'Messages', path: null },
+  { icon: '💬', label: 'Messages', path: '/messages' },
   { icon: '🔔', label: 'Notifications', path: '/notifications' },
   { icon: '⚙️', label: 'Settings', path: '/settings' },
 ];
