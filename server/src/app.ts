@@ -9,6 +9,7 @@ import reviewRoutes from "./routes/reviewRoutes";
 import portfolioRoutes from "./routes/portfolioRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
 import messageRoutes from "./routes/messageRoutes";
+import communityRoutes from "./routes/communityRoutes";
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/community", communityRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
