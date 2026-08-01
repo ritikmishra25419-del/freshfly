@@ -44,10 +44,10 @@ export const createPost = async (req: AuthRequest, res: Response) => {
         type: type || "DISCUSSION",
       },
       include: {
-        user: { select: { id: true, name: true, role: { select: { name: true } }, profile: { select: { tier: true } } } },
-        comments: [],
-        reactions: [],
-      },
+  user: { select: { id: true, name: true, role: { select: { name: true } }, profile: { select: { tier: true } } } },
+  comments: { include: { user: { select: { id: true, name: true } } } },
+  reactions: true,
+},
     });
 
     res.status(201).json({ post });
