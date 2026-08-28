@@ -1,12 +1,6 @@
-.msg-page {
-  min-height: 100vh;
-  height: 100vh;
-  background: var(--bg);
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  overflow: hidden;
+.profile-main {
+  padding: 36px 40px;
 }
-
 .msg-sidebar {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border);

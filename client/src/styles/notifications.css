@@ -1,9 +1,7 @@
-.notif-page {
-  min-height: 100vh;
-  background: var(--bg);
-  display: grid;
-  grid-template-columns: 240px 1fr;
+.profile-main {
+  padding: 36px 40px;
 }
+
 
 .notif-sidebar {
   background: var(--sidebar-bg);
