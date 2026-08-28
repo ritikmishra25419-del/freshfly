@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/jobs.css';
 
 interface Job {
@@ -28,27 +27,8 @@ interface PostJobForm {
   isRemote: boolean;
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-  { icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
- { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 export default function Jobs() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -61,7 +41,6 @@ export default function Jobs() {
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState('');
   const [postSuccess, setPostSuccess] = useState(false);
-
   const [applyingJob, setApplyingJob] = useState<Job | null>(null);
   const [coverLetter, setCoverLetter] = useState('');
   const [applying, setApplying] = useState(false);
@@ -130,48 +109,7 @@ export default function Jobs() {
   };
 
   return (
-    <div className="jobs-page">
-      <div className="jobs-sidebar">
-        <div className="jobs-sidebar-logo">FreshFly ✦</div>
-        <div className="jobs-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`jobs-sidebar-item ${item.path === '/jobs' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="jobs-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="jobs-theme-label">Theme</div>
-          <div className="jobs-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="jobs-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="jobs-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="jobs-main">
         <div className="jobs-header">
           <div>
@@ -189,7 +127,7 @@ export default function Jobs() {
           )}
         </div>
 
-        {postSuccess && <div className="jobs-success-banner">✅ Job posted successfully! Freshers can now apply.</div>}
+        {postSuccess && <div className="jobs-success-banner">✅ Job posted successfully!</div>}
         {applySuccess && <div className="jobs-success-banner">🎉 Application submitted! Good luck!</div>}
 
         {showPostForm && (
@@ -253,10 +191,8 @@ export default function Jobs() {
                 <div className="jobs-form-group">
                   <label>Cover letter</label>
                   <textarea rows={5}
-                    placeholder="Tell the client why you're a great fit. Mention relevant skills, your approach, and any similar work you've done..."
-                    value={coverLetter}
-                    onChange={e => setCoverLetter(e.target.value)}
-                    required />
+                    placeholder="Tell the client why you're a great fit..."
+                    value={coverLetter} onChange={e => setCoverLetter(e.target.value)} required />
                 </div>
                 {applyError && <div className="jobs-form-error">{applyError}</div>}
                 <button type="submit" className="jobs-form-submit" disabled={applying}>
@@ -274,9 +210,7 @@ export default function Jobs() {
             <div className="jobs-empty-icon">💼</div>
             <div className="jobs-empty-title">No jobs yet</div>
             <div className="jobs-empty-sub">
-              {user?.role === 'CLIENT'
-                ? 'Post your first job to start hiring talented freshers.'
-                : 'Check back soon — new jobs are posted daily.'}
+              {user?.role === 'CLIENT' ? 'Post your first job to start hiring.' : 'Check back soon — new jobs are posted daily.'}
             </div>
             {user?.role === 'CLIENT' && (
               <button className="jobs-post-btn" style={{ marginTop: 16 }} onClick={() => setShowPostForm(true)}>
@@ -303,26 +237,24 @@ export default function Jobs() {
                     Tier {job.tierRequired}
                   </div>
                 </div>
-
                 <div className="job-title">{job.title}</div>
                 <div className="job-desc">
                   {job.description.slice(0, 100)}{job.description.length > 100 ? '...' : ''}
                 </div>
-
                 <div className="job-skills">
                   {job.skills.split(',').map(s => (
                     <span key={s} className="job-skill-tag">{s.trim()}</span>
                   ))}
                   {job.isRemote && <span className="job-skill-tag job-remote-tag">Remote</span>}
                 </div>
-
                 <div className="job-card-bottom">
                   <div className="job-budget">₹{job.budget.toLocaleString()}</div>
                   {user?.role === 'FRESHER' && (
                     appliedJobIds.includes(job.id) ? (
                       <span className="job-applied-badge">✓ Applied</span>
                     ) : (
-                      <button className="job-apply-btn" onClick={() => { setApplyingJob(job); setApplyError(''); }}>
+                      <button className="job-apply-btn"
+                        onClick={() => { setApplyingJob(job); setApplyError(''); }}>
                         Apply now
                       </button>
                     )
@@ -335,6 +267,6 @@ export default function Jobs() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
