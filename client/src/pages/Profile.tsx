@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/profile.css';
 import '../styles/dashboard.css';
 
@@ -50,24 +49,6 @@ interface ClientJob {
   tierRequired: number;
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-  { icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 const statusConfig = {
   PENDING: { label: 'Pending', color: '#F59E0B', bg: '#FFFBEB' },
   ACCEPTED: { label: 'Accepted', color: '#22C55E', bg: '#DCFCE7' },
@@ -76,8 +57,7 @@ const statusConfig = {
 };
 
 export default function Profile() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -131,72 +111,13 @@ export default function Profile() {
   const tierPercent = ((profile.tier || 1) / 3) * 100;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const currentPath = '/profile';
 
   const tierColor: Record<number, string> = {
     1: '#22C55E', 2: '#7C3AED', 3: '#F59E0B',
   };
 
   return (
-    <div className="profile-page">
-      <div className="sidebar">
-        <div className="sidebar-logo">FreshFly ✦</div>
-        <div className="sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`sidebar-item ${item.path === currentPath ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{
-                opacity: item.path ? 1 : 0.5,
-                cursor: item.path ? 'pointer' : 'not-allowed',
-              }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && (
-                <span style={{
-                  marginLeft: 'auto', fontSize: 9,
-                  background: 'var(--border)', color: 'var(--text-muted)',
-                  padding: '1px 6px', borderRadius: 100, fontWeight: 700,
-                }}>Soon</span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: 1,
-            color: 'var(--text-muted)', textTransform: 'uppercase',
-            marginBottom: 8, paddingLeft: 4,
-          }}>Theme</div>
-          <div style={{ display: 'flex', gap: 6, paddingLeft: 4 }}>
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t.charAt(0).toUpperCase() + t.slice(1)}
-                onClick={() => setTheme(t as Theme)}
-                style={{
-                  width: 18, height: 18, borderRadius: '50%',
-                  background: color, cursor: 'pointer',
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transition: 'all 0.2s',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                  boxShadow: theme === t ? '0 0 0 2px var(--bg)' : 'none',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="logout-btn" style={{ width: '100%' }}
-            onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="profile-main">
         <div className="dash-greeting-card">
           <div className="dash-greeting-left">
@@ -236,7 +157,7 @@ export default function Profile() {
             <div className="dash-stats">
               <div className="dash-stat-card">
                 <div className="dash-stat-icon">📋</div>
-                <div className="dash-stat-num">{recentApplications.length > 0 ? recentApplications.length : 0}</div>
+                <div className="dash-stat-num">{recentApplications.length}</div>
                 <div className="dash-stat-label">Applications sent</div>
               </div>
               <div className="dash-stat-card">
@@ -259,14 +180,10 @@ export default function Profile() {
             <div className="dash-section">
               <div className="dash-section-header">
                 <div className="dash-section-title">Recommended jobs for you</div>
-                <button className="dash-see-all" onClick={() => navigate('/jobs')}>
-                  See all →
-                </button>
+                <button className="dash-see-all" onClick={() => navigate('/jobs')}>See all →</button>
               </div>
               {recommendedJobs.length === 0 ? (
-                <div className="dash-empty">
-                  No jobs available right now — check back soon.
-                </div>
+                <div className="dash-empty">No jobs available right now — check back soon.</div>
               ) : (
                 <div className="dash-jobs-grid">
                   {recommendedJobs.map(job => (
@@ -294,8 +211,7 @@ export default function Profile() {
                       </div>
                       <div className="dash-job-bottom">
                         <div className="dash-job-budget">₹{job.budget.toLocaleString()}</div>
-                        <button className="dash-apply-btn"
-                          onClick={() => navigate('/jobs')}>
+                        <button className="dash-apply-btn" onClick={() => navigate('/jobs')}>
                           Apply →
                         </button>
                       </div>
@@ -327,9 +243,12 @@ export default function Profile() {
                       <div key={app.id} className="dash-app-row">
                         <div className="dash-app-info">
                           <div className="dash-app-title">{app.job.title}</div>
-                          <div className="dash-app-client">by {app.job.client.name} · ₹{app.job.budget.toLocaleString()}</div>
+                          <div className="dash-app-client">
+                            by {app.job.client.name} · ₹{app.job.budget.toLocaleString()}
+                          </div>
                         </div>
-                        <span className="dash-app-status" style={{ color: sc.color, background: sc.bg }}>
+                        <span className="dash-app-status"
+                          style={{ color: sc.color, background: sc.bg }}>
                           {sc.label}
                         </span>
                       </div>
@@ -418,6 +337,6 @@ export default function Profile() {
           </>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
