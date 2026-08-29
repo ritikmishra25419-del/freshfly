@@ -4,6 +4,7 @@ import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
 import { useTheme, themes } from '../store/ThemeContext';
 import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/settings.css';
 
 interface ProfileData {
@@ -18,26 +19,8 @@ interface ProfileData {
   availability: boolean;
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
- { icon: '👥', label: 'Community', path: '/community' },
- { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 export default function Settings() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -126,49 +109,7 @@ export default function Settings() {
   if (loading) return <div className="settings-loading">Loading settings...</div>;
 
   return (
-    <div className="settings-page">
-      <div className="settings-sidebar">
-        <div className="settings-sidebar-logo">FreshFly ✦</div>
-        <div className="settings-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`settings-sidebar-item ${item.path === '/settings' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="settings-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="settings-theme-label">Theme</div>
-          <div className="settings-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="settings-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="settings-logout-btn"
-            onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="settings-main">
         <h1 className="settings-title">Settings</h1>
         <p className="settings-subtitle">Manage your account, profile and preferences</p>
@@ -311,6 +252,6 @@ export default function Settings() {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
