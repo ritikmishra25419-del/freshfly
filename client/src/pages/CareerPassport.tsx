@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/careerpassport.css';
 
 interface PassportData {
@@ -37,27 +36,8 @@ interface Review {
   application: { job: { title: string } };
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
- { icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 export default function CareerPassport() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { userId } = useParams();
 
@@ -111,48 +91,7 @@ export default function CareerPassport() {
   if (!profile) return null;
 
   return (
-    <div className="cp-page">
-      <div className="cp-sidebar">
-        <div className="cp-sidebar-logo">FreshFly ✦</div>
-        <div className="cp-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`cp-sidebar-item ${item.path === '/passport' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="cp-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="cp-theme-label">Theme</div>
-          <div className="cp-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="cp-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="cp-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="cp-main">
         <div className="cp-passport-card">
           <div className="cp-banner" />
@@ -312,6 +251,6 @@ export default function CareerPassport() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
