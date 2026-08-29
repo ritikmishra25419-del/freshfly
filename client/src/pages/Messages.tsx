@@ -1,9 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/messages.css';
 
 interface Conversation {
@@ -25,28 +23,8 @@ interface Message {
   sender: { id: number; name: string };
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-{ icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 export default function Messages() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConv, setActiveConv] = useState<Conversation | null>(null);
@@ -142,48 +120,7 @@ export default function Messages() {
   };
 
   return (
-    <div className="msg-page">
-      <div className="msg-sidebar">
-        <div className="msg-sidebar-logo">FreshFly ✦</div>
-        <div className="msg-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`msg-sidebar-item ${item.path === '/messages' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="msg-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="msg-theme-label">Theme</div>
-          <div className="msg-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="msg-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="msg-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="msg-main">
         <div className="msg-conversations">
           <div className="msg-conv-header">
@@ -300,6 +237,6 @@ export default function Messages() {
           )}
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
