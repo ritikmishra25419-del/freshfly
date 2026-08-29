@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/mentor.css';
 
 interface Review {
@@ -22,29 +21,9 @@ interface PendingReview {
   createdAt: string;
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '⭐', label: 'Review Queue', path: '/mentor' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
- { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-{ icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 export default function MentorDashboard() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
   const [myReviews, setMyReviews] = useState<Review[]>([]);
@@ -110,52 +89,7 @@ export default function MentorDashboard() {
     : '—';
 
   return (
-    <div className="mentor-page">
-      <div className="mentor-sidebar">
-        <div className="mentor-sidebar-logo">FreshFly ✦</div>
-        <div className="mentor-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`mentor-sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{
-                opacity: item.path ? 1 : 0.5,
-                cursor: item.path ? 'pointer' : 'not-allowed',
-              }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="mentor-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="mentor-theme-label">Theme</div>
-          <div className="mentor-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="mentor-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="mentor-logout-btn"
-            onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="mentor-main">
         <div className="mentor-header">
           <div>
@@ -353,6 +287,6 @@ export default function MentorDashboard() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
