@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/applications.css';
 
 interface Application {
@@ -64,24 +63,6 @@ interface MentorReview {
   application?: { job?: { id: number; title: string } };
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
- { icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: null },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 const statusConfig = {
   PENDING: { label: 'Pending', color: '#F59E0B', bg: '#FFFBEB' },
   ACCEPTED: { label: 'Accepted', color: '#22C55E', bg: '#DCFCE7' },
@@ -120,20 +101,14 @@ function MentorView() {
     setSubmitError('');
     setSubmitting(true);
     try {
-      await api.post('/reviews', {
-        applicationId: reviewing,
-        rating,
-        review: reviewText,
-      });
+      await api.post('/reviews', { applicationId: reviewing, rating, review: reviewText });
       setSubmitted(prev => [...prev, reviewing]);
       setReviewing(null);
       setReviewText('');
       setRating(5);
     } catch (err: any) {
       setSubmitError(err.response?.data?.message || 'Failed to submit review.');
-    } finally {
-      setSubmitting(false);
-    }
+    } finally { setSubmitting(false); }
   };
 
   if (loading) return <div className="apps-loading">Loading reviews...</div>;
@@ -153,11 +128,8 @@ function MentorView() {
                 <label>Rating</label>
                 <div className="mentor-stars">
                   {[1, 2, 3, 4, 5].map(s => (
-                    <span
-                      key={s}
-                      className={`mentor-star ${s <= rating ? 'active' : ''}`}
-                      onClick={() => setRating(s)}
-                    >★</span>
+                    <span key={s} className={`mentor-star ${s <= rating ? 'active' : ''}`}
+                      onClick={() => setRating(s)}>★</span>
                   ))}
                   <span className="mentor-star-label">{rating}/5</span>
                 </div>
@@ -166,9 +138,7 @@ function MentorView() {
                 <label>Review</label>
                 <textarea rows={4}
                   placeholder="Describe the fresher's work quality, communication, and professionalism..."
-                  value={reviewText}
-                  onChange={e => setReviewText(e.target.value)}
-                  required />
+                  value={reviewText} onChange={e => setReviewText(e.target.value)} required />
               </div>
               {submitError && <div className="apps-form-error">{submitError}</div>}
               <button type="submit" className="apps-form-submit" disabled={submitting}>
@@ -180,19 +150,13 @@ function MentorView() {
       )}
 
       <div className="mentor-tabs" style={{ marginBottom: 20 }}>
-        <button
-          className={`mentor-tab ${activeTab === 'pending' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pending')}
-        >
+        <button className={`mentor-tab ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}>
           ⏳ Pending
-          {pendingQueue.length > 0 && (
-            <span className="mentor-tab-badge">{pendingQueue.length}</span>
-          )}
+          {pendingQueue.length > 0 && <span className="mentor-tab-badge">{pendingQueue.length}</span>}
         </button>
-        <button
-          className={`mentor-tab ${activeTab === 'completed' ? 'active' : ''}`}
-          onClick={() => setActiveTab('completed')}
-        >
+        <button className={`mentor-tab ${activeTab === 'completed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('completed')}>
           ✅ Completed ({myReviews.length + submitted.length})
         </button>
       </div>
@@ -221,9 +185,7 @@ function MentorView() {
                       </div>
                       <div>
                         <div className="app-fresher-name">{app.fresher?.name || 'Unknown'}</div>
-                        <div className="app-fresher-meta">
-                          Tier {app.fresher?.profile?.tier || 1} Fresher
-                        </div>
+                        <div className="app-fresher-meta">Tier {app.fresher?.profile?.tier || 1} Fresher</div>
                       </div>
                     </div>
                     <span className="app-status-badge" style={{ color: '#7C3AED', background: '#EEF0FF' }}>
@@ -233,9 +195,7 @@ function MentorView() {
                   <div className="app-job-title">{app.job?.title || 'Project'}</div>
                   <div className="app-skills" style={{ marginBottom: 14 }}>{app.job?.skills}</div>
                   <div className="app-date" style={{ marginBottom: 12 }}>
-                    Completed {new Date(app.createdAt).toLocaleDateString('en-IN', {
-                      day: 'numeric', month: 'short', year: 'numeric',
-                    })}
+                    Completed {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </div>
                   <button className="app-btn-complete"
                     onClick={() => { setReviewing(app.id); setSubmitError(''); }}>
@@ -267,9 +227,7 @@ function MentorView() {
                       </div>
                       <div>
                         <div className="app-fresher-name">{review.fresher?.name || 'Unknown'}</div>
-                        <div className="app-fresher-meta">
-                          Tier {review.fresher?.profile?.tier || 1} Fresher
-                        </div>
+                        <div className="app-fresher-meta">Tier {review.fresher?.profile?.tier || 1} Fresher</div>
                       </div>
                     </div>
                     <div className="app-review-stars">
@@ -282,9 +240,7 @@ function MentorView() {
                     <div className="app-cover-text">"{review.review}"</div>
                   </div>
                   <div className="app-date">
-                    Reviewed {new Date(review.createdAt).toLocaleDateString('en-IN', {
-                      day: 'numeric', month: 'short', year: 'numeric',
-                    })}
+                    Reviewed {new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </div>
                 </div>
               ))}
@@ -297,8 +253,7 @@ function MentorView() {
 }
 
 export default function Applications() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [myApplications, setMyApplications] = useState<Application[]>([]);
@@ -325,14 +280,10 @@ export default function Applications() {
           if (data.jobs.length > 0) {
             loadJobApplications(data.jobs[0].id);
             setSelectedJobId(data.jobs[0].id);
-          } else {
-            setLoading(false);
-          }
+          } else { setLoading(false); }
         })
         .catch(console.error);
-    } else {
-      setLoading(false);
-    }
+    } else { setLoading(false); }
   }, [user]);
 
   const loadJobApplications = (jobId: number) => {
@@ -354,56 +305,12 @@ export default function Applications() {
       setSelectedJobApps(prev =>
         prev.map(a => a.id === appId ? { ...a, status: status as any } : a)
       );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setUpdating(null);
-    }
+    } catch (err) { console.error(err); }
+    finally { setUpdating(null); }
   };
 
   return (
-    <div className="apps-page">
-      <div className="apps-sidebar">
-        <div className="apps-sidebar-logo">FreshFly ✦</div>
-        <div className="apps-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`apps-sidebar-item ${item.path === '/applications' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="apps-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="apps-theme-label">Theme</div>
-          <div className="apps-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="apps-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="apps-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="apps-main">
         <h1 className="apps-title">Applications</h1>
         <p className="apps-subtitle">
@@ -422,9 +329,7 @@ export default function Applications() {
               <div className="apps-empty-icon">📋</div>
               <div className="apps-empty-title">No applications yet</div>
               <div className="apps-empty-sub">Browse jobs and apply to get started.</div>
-              <button className="apps-browse-btn" onClick={() => navigate('/jobs')}>
-                Browse jobs →
-              </button>
+              <button className="apps-browse-btn" onClick={() => navigate('/jobs')}>Browse jobs →</button>
             </div>
           ) : (
             <div className="apps-list">
@@ -441,19 +346,16 @@ export default function Applications() {
                         {sc.label}
                       </span>
                     </div>
-
                     <div className="app-job-meta">
                       <span className="app-budget">₹{app.job?.budget?.toLocaleString()}</span>
                       <span className="app-skills">{app.job?.skills}</span>
                     </div>
-
                     {app.coverLetter && (
                       <div className="app-cover-letter">
                         <div className="app-cover-label">Your cover letter</div>
                         <div className="app-cover-text">{app.coverLetter}</div>
                       </div>
                     )}
-
                     {app.review && (
                       <div className="app-review-card">
                         <div className="app-review-header">
@@ -468,11 +370,8 @@ export default function Applications() {
                         )}
                       </div>
                     )}
-
                     <div className="app-date">
-                      Applied {new Date(app.createdAt).toLocaleDateString('en-IN', {
-                        day: 'numeric', month: 'short', year: 'numeric',
-                      })}
+                      Applied {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
                 );
@@ -490,24 +389,19 @@ export default function Applications() {
                 <div className="apps-empty-icon">💼</div>
                 <div className="apps-empty-title">No jobs posted yet</div>
                 <div className="apps-empty-sub">Post a job to start receiving applications.</div>
-                <button className="apps-browse-btn" onClick={() => navigate('/jobs')}>
-                  Post a job →
-                </button>
+                <button className="apps-browse-btn" onClick={() => navigate('/jobs')}>Post a job →</button>
               </div>
             ) : (
               <>
                 <div className="apps-job-tabs">
                   {myJobs.map(job => (
-                    <button
-                      key={job.id}
+                    <button key={job.id}
                       className={`apps-job-tab ${selectedJobId === job.id ? 'active' : ''}`}
-                      onClick={() => loadJobApplications(job.id)}
-                    >
+                      onClick={() => loadJobApplications(job.id)}>
                       {job.title}
                     </button>
                   ))}
                 </div>
-
                 {loading ? (
                   <div className="apps-loading">Loading applicants...</div>
                 ) : selectedJobApps.length === 0 ? (
@@ -539,56 +433,37 @@ export default function Applications() {
                               {sc.label}
                             </span>
                           </div>
-
                           {app.fresher?.profile?.bio && (
                             <div className="app-fresher-bio">{app.fresher.profile.bio}</div>
                           )}
-
                           {app.coverLetter && (
                             <div className="app-cover-letter">
                               <div className="app-cover-label">Cover letter</div>
                               <div className="app-cover-text">{app.coverLetter}</div>
                             </div>
                           )}
-
                           {app.status === 'PENDING' && (
                             <div className="app-actions">
                               <button className="app-btn-accept" disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'ACCEPTED')}>
-                                ✓ Accept
-                              </button>
+                                onClick={() => updateStatus(app.id, 'ACCEPTED')}>✓ Accept</button>
                               <button className="app-btn-reject" disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'REJECTED')}>
-                                ✕ Reject
-                              </button>
+                                onClick={() => updateStatus(app.id, 'REJECTED')}>✕ Reject</button>
                             </div>
                           )}
-
                           {app.status === 'ACCEPTED' && (
                             <div className="app-actions">
                               <button className="app-btn-complete" disabled={updating === app.id}
-                                onClick={() => updateStatus(app.id, 'COMPLETED')}>
-                                🎉 Mark as completed
-                              </button>
+                                onClick={() => updateStatus(app.id, 'COMPLETED')}>🎉 Mark as completed</button>
                             </div>
                           )}
-
                           {app.status === 'COMPLETED' && !app.review && (
-                            <div className="app-completed-note">
-                              ✅ Completed — awaiting mentor review
-                            </div>
+                            <div className="app-completed-note">✅ Completed — awaiting mentor review</div>
                           )}
-
                           {app.status === 'COMPLETED' && app.review && (
-                            <div className="app-completed-note" style={{ color: '#7C3AED' }}>
-                              ⭐ Mentor review submitted
-                            </div>
+                            <div className="app-completed-note" style={{ color: '#7C3AED' }}>⭐ Mentor review submitted</div>
                           )}
-
                           <div className="app-date">
-                            Applied {new Date(app.createdAt).toLocaleDateString('en-IN', {
-                              day: 'numeric', month: 'short', year: 'numeric',
-                            })}
+                            Applied {new Date(app.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </div>
                         </div>
                       );
@@ -600,6 +475,6 @@ export default function Applications() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
