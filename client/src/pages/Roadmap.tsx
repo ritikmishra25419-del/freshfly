@@ -1,27 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/roadmap.css';
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-{ icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
 
 interface Step {
   id: string;
@@ -181,8 +161,6 @@ const levelColors = {
 };
 
 export default function Roadmap() {
-  const { logout } = useAuth();
-  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   const [completed, setCompleted] = useState<string[]>(() => {
@@ -212,48 +190,7 @@ export default function Roadmap() {
   const trackCompleted = currentTrack.steps.filter(s => completed.includes(s.id)).length;
 
   return (
-    <div className="rm-page">
-      <div className="rm-sidebar">
-        <div className="rm-sidebar-logo">FreshFly ✦</div>
-        <div className="rm-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`rm-sidebar-item ${item.path === '/roadmap' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="rm-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="rm-theme-label">Theme</div>
-          <div className="rm-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="rm-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="rm-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="rm-main">
         <div className="rm-header">
           <div>
@@ -384,6 +321,6 @@ export default function Roadmap() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
