@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../store/AuthContext';
-import { useTheme } from '../store/ThemeContext';
-import type { Theme } from '../store/ThemeContext';
+import PageLayout from '../components/PageLayout';
 import '../styles/community.css';
 
 interface Post {
@@ -35,24 +33,6 @@ interface Reaction {
   userId: number;
 }
 
-const navItems = [
-  { icon: '🏠', label: 'Home', path: '/profile' },
-  { icon: '💼', label: 'Jobs', path: '/jobs' },
-  { icon: '📋', label: 'Applications', path: '/applications' },
-  { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
-  { icon: '🪪', label: 'Career Passport', path: '/passport' },
-  { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
-  { icon: '👥', label: 'Community', path: '/community' },
-  { icon: '💬', label: 'Messages', path: '/messages' },
-  { icon: '🔔', label: 'Notifications', path: '/notifications' },
-  { icon: '⚙️', label: 'Settings', path: '/settings' },
-];
-
-const themeColors: Record<string, string> = {
-  ocean: '#2563EB', cosmic: '#7C3AED', mint: '#10B981',
-  midnight: '#3B82F6', neon: '#FF0080',
-};
-
 const typeConfig = {
   QUESTION: { label: 'Question', color: '#F59E0B', bg: '#FFFBEB', icon: '❓' },
   SHOWCASE: { label: 'Showcase', color: '#7C3AED', bg: '#EEF0FF', icon: '🚀' },
@@ -63,9 +43,7 @@ const typeConfig = {
 const reactionEmoji = { LIKE: '👍', FIRE: '🔥', CLAP: '👏' };
 
 export default function Community() {
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,48 +143,7 @@ export default function Community() {
   };
 
   return (
-    <div className="comm-page">
-      <div className="comm-sidebar">
-        <div className="comm-sidebar-logo">FreshFly ✦</div>
-        <div className="comm-sidebar-nav">
-          {navItems.map((item) => (
-            <div
-              key={item.label}
-              className={`comm-sidebar-item ${item.path === '/community' ? 'active' : ''}`}
-              onClick={() => item.path ? navigate(item.path) : null}
-              style={{ opacity: item.path ? 1 : 0.5, cursor: item.path ? 'pointer' : 'not-allowed' }}
-              title={!item.path ? 'Coming soon' : undefined}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-              {!item.path && <span className="comm-soon-badge">Soon</span>}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ padding: '0 16px', marginBottom: 12 }}>
-          <div className="comm-theme-label">Theme</div>
-          <div className="comm-theme-dots">
-            {Object.entries(themeColors).map(([t, color]) => (
-              <div key={t} title={t} onClick={() => setTheme(t as Theme)}
-                className="comm-theme-dot"
-                style={{
-                  background: color,
-                  border: theme === t ? '2px solid var(--text-primary)' : '2px solid transparent',
-                  transform: theme === t ? 'scale(1.25)' : 'scale(1)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: '0 16px' }}>
-          <button className="comm-logout-btn" onClick={() => { logout(); navigate('/'); }}>
-            Log out
-          </button>
-        </div>
-      </div>
-
+    <PageLayout>
       <div className="comm-main">
         <div className="comm-header">
           <div>
@@ -398,6 +335,6 @@ export default function Community() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }
