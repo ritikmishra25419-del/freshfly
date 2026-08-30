@@ -36,11 +36,12 @@ export const applyToJob = async (req: AuthRequest, res: Response) => {
     });
 
     await createNotification(
-      job.clientId,
-      'NEW_APPLICANT',
-      '👤 New applicant!',
-      `Someone applied to your job "${job.title}". Review their application now.`
-    );
+  job.clientId,
+  'NEW_APPLICANT',
+  '👤 New applicant!',
+  `Someone applied to your job "${job.title}". Review their application now.`,
+  '/applications'
+);
 
     res.status(201).json({ message: "Application submitted.", application });
   } catch (err) {
@@ -133,12 +134,13 @@ export const updateApplicationStatus = async (req: AuthRequest, res: Response) =
     });
 
     if (status === 'ACCEPTED') {
-  await createNotification(
-    updated.fresher.id,
-    'APPLICATION_ACCEPTED',
-    '🎉 Application accepted!',
-    `Your application for "${updated.job.title}" has been accepted. Get ready to start work!`
-  );
+ await createNotification(
+  updated.fresher.id,
+  'APPLICATION_ACCEPTED',
+  '🎉 Application accepted!',
+  `Your application for "${updated.job.title}" has been accepted. Get ready to start work!`,
+  '/applications'
+);
   await createConversation(
     id,
     updated.fresher.id,
@@ -147,18 +149,20 @@ export const updateApplicationStatus = async (req: AuthRequest, res: Response) =
 }
      else if (status === 'REJECTED') {
       await createNotification(
-        updated.fresher.id,
-        'APPLICATION_REJECTED',
-        'Application update',
-        `Your application for "${updated.job.title}" was not selected this time. Keep applying!`
-      );
+  updated.fresher.id,
+  'APPLICATION_REJECTED',
+  'Application update',
+  `Your application for "${updated.job.title}" was not selected this time. Keep applying!`,
+  '/applications'
+);
     } else if (status === 'COMPLETED') {
       await createNotification(
-        updated.fresher.id,
-        'APPLICATION_COMPLETED',
-        '✅ Job marked as completed!',
-        `"${updated.job.title}" has been marked complete. A mentor will review your work soon.`
-      );
+  updated.fresher.id,
+  'APPLICATION_COMPLETED',
+  '✅ Job marked as completed!',
+  `"${updated.job.title}" has been marked complete. A mentor will review your work soon.`,
+  '/applications'
+);
     }
 
     res.json({ message: `Application ${status.toLowerCase()}.`, application: updated });
