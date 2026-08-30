@@ -171,3 +171,47 @@ export const updateApplicationStatus = async (req: AuthRequest, res: Response) =
     res.status(500).json({ message: "Something went wrong." });
   }
 };
+export const rateApplication = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    const { clientRating, clientReview } = req.body;
+
+    if (!clientRating || clientRating < 1 || clientRating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5." });
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      include: { job: true },
+    });
+
+    if (!application) return res.status(404).json({ message: "Application not found." });
+    if (application.job.clientId !== req.userId) {
+      return res.status(403).json({ message: "You can only rate your own jobs." });
+    }
+    if (application.status !== 'COMPLETED') {
+      return res.status(400).json({ message: "Can only rate completed applications." });
+    }
+    if (application.clientRating) {
+      return res.status(409).json({ message: "You already rated this application." });
+    }
+
+    const updated = await prisma.application.update({
+      where: { id },
+      data: { clientRating: Number(clientRating), clientReview: clientReview || null },
+    });
+
+    await createNotification(
+      application.fresherId,
+      'APPLICATION_COMPLETED',
+      '⭐ Client left you a rating!',
+      `You received a ${clientRating}-star rating from the client. Check your applications!`,
+      '/applications'
+    );
+
+    res.json({ message: "Rating submitted.", application: updated });
+  } catch (err) {
+    console.error("Rate application error:", err);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+};
