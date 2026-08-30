@@ -109,6 +109,8 @@ model Application {
   fresherId   Int
   coverLetter String?           @db.Text
   status      ApplicationStatus @default(PENDING)
+  clientRating  Int?
+  clientReview  String?           @db.Text
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   job         Job               @relation(fields: [jobId], references: [id])
