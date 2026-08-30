@@ -262,6 +262,10 @@ export default function Applications() {
   const [myJobs, setMyJobs] = useState<{ id: number; title: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<number | null>(null);
+  const [ratingModal, setRatingModal] = useState<number | null>(null);
+  const [ratingValue, setRatingValue] = useState(5);
+  const [ratingReview, setRatingReview] = useState('');
+  const [submittingRating, setSubmittingRating] = useState(false);
 
   useEffect(() => {
     if (user?.role === 'FRESHER') {
@@ -308,6 +312,34 @@ export default function Applications() {
     } catch (err) { console.error(err); }
     finally { setUpdating(null); }
   };
+  const handleRating = async () => {
+  if (!ratingModal) return;
+
+  setSubmittingRating(true);
+
+  try {
+    await api.post(`/applications/${ratingModal}/rate`, {
+      clientRating: ratingValue,
+      clientReview: ratingReview,
+    });
+
+    setSelectedJobApps(prev =>
+      prev.map(a =>
+        a.id === ratingModal
+          ? { ...a, clientRating: ratingValue }
+          : a
+      )
+    );
+
+    setRatingModal(null);
+    setRatingValue(5);
+    setRatingReview('');
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setSubmittingRating(false);
+  }
+};
 
   return (
     <PageLayout>
@@ -457,8 +489,24 @@ export default function Applications() {
                             </div>
                           )}
                           {app.status === 'COMPLETED' && !app.review && (
-                            <div className="app-completed-note">✅ Completed — awaiting mentor review</div>
-                          )}
+  <div className="app-completed-note">
+    ✅ Completed — awaiting mentor review
+  </div>
+)}
+{app.status === 'COMPLETED' && !(app as any).clientRating && (
+  <button
+    className="app-btn-complete"
+    style={{ marginTop: 8, background: '#F59E0B', color: 'white', border: 'none' }}
+    onClick={() => setRatingModal(app.id)}
+  >
+    ⭐ Rate this fresher
+  </button>
+)}
+{app.status === 'COMPLETED' && (app as any).clientRating && (
+  <div className="app-completed-note" style={{ color: '#F59E0B', background: '#FFFBEB' }}>
+    ⭐ You rated this fresher {(app as any).clientRating}/5
+  </div>
+)}
                           {app.status === 'COMPLETED' && app.review && (
                             <div className="app-completed-note" style={{ color: '#7C3AED' }}>⭐ Mentor review submitted</div>
                           )}
@@ -474,7 +522,119 @@ export default function Applications() {
             )}
           </div>
         )}
-      </div>
+            </div>
+
+      {ratingModal && (
+        <div
+          className="apps-modal-overlay"
+          onClick={() => setRatingModal(null)}
+        >
+          <div
+            className="apps-modal"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className="apps-modal-close"
+              onClick={() => setRatingModal(null)}
+            >
+              ✕
+            </button>
+
+            <h2 className="apps-modal-title">Rate this fresher</h2>
+
+            <p className="apps-modal-sub">
+              How would you rate the quality of work delivered?
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                    marginBottom: 8
+                  }}
+                >
+                  Rating
+                </div>
+
+                <div className="mentor-stars">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <span
+                      key={s}
+                      className={`mentor-star ${s <= ratingValue ? 'active' : ''}`}
+                      onClick={() => setRatingValue(s)}
+                    >
+                      ★
+                    </span>
+                  ))}
+
+                  <span className="mentor-star-label">
+                    {ratingValue}/5
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                    marginBottom: 8
+                  }}
+                >
+                  Review (optional)
+                </div>
+
+                <textarea
+                  rows={3}
+                  placeholder="How was working with this fresher? Quality, communication, delivery..."
+                  value={ratingReview}
+                  onChange={e => setRatingReview(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1.5px solid var(--border)',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontFamily: 'var(--font)',
+                    outline: 'none',
+                    background: 'var(--bg)',
+                    color: 'var(--text-primary)',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={handleRating}
+                disabled={submittingRating}
+                style={{
+                  padding: '13px',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font)',
+                  opacity: submittingRating ? 0.6 : 1
+                }}
+              >
+                {submittingRating ? 'Submitting...' : 'Submit rating →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </PageLayout>
   );
 }
