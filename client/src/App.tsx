@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import { ThemeProvider } from './store/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import ThemePicker from './pages/ThemePicker';
@@ -22,55 +23,59 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/choose-theme" element={
-              <ProtectedRoute><ThemePicker /></ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute><Profile /></ProtectedRoute>
-            } />
-            <Route path="/jobs" element={
-              <ProtectedRoute><Jobs /></ProtectedRoute>
-            } />
-            <Route path="/applications" element={
-              <ProtectedRoute><Applications /></ProtectedRoute>
-            } />
-            <Route path="/mentor" element={
-              <ProtectedRoute><MentorDashboard /></ProtectedRoute>
-            } />
-            <Route path="/portfolio" element={
-              <ProtectedRoute><Portfolio /></ProtectedRoute>
-            } />
-            <Route path="/passport" element={
-              <ProtectedRoute><CareerPassport /></ProtectedRoute>
-            } />
-            <Route path="/passport/:userId" element={
-              <ProtectedRoute><CareerPassport /></ProtectedRoute>
-            } />
-            <Route path="/notifications" element={
-              <ProtectedRoute><Notifications /></ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute><Settings /></ProtectedRoute>
-            } />
-            <Route path="/roadmap" element={
-              <ProtectedRoute><Roadmap /></ProtectedRoute>
-            } />
-            <Route path="/messages" element={
-              <ProtectedRoute><Messages /></ProtectedRoute>
-            } />
-            <Route path="/community" element={
-              <ProtectedRoute><Community /></ProtectedRoute>
-            } />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/choose-theme" element={
+                  <ProtectedRoute><ThemePicker /></ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute><ErrorBoundary><Profile /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/jobs" element={
+                  <ProtectedRoute><ErrorBoundary><Jobs /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/applications" element={
+                  <ProtectedRoute><ErrorBoundary><Applications /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/mentor" element={
+                  <ProtectedRoute><ErrorBoundary><MentorDashboard /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/portfolio" element={
+                  <ProtectedRoute><ErrorBoundary><Portfolio /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/passport" element={
+                  <ProtectedRoute><ErrorBoundary><CareerPassport /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/passport/:userId" element={
+                  <ProtectedRoute><ErrorBoundary><CareerPassport /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/notifications" element={
+                  <ProtectedRoute><ErrorBoundary><Notifications /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute><ErrorBoundary><Settings /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/roadmap" element={
+                  <ProtectedRoute><ErrorBoundary><Roadmap /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/messages" element={
+                  <ProtectedRoute><ErrorBoundary><Messages /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="/community" element={
+                  <ProtectedRoute><ErrorBoundary><Community /></ErrorBoundary></ProtectedRoute>
+                } />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </ErrorBoundary>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
