@@ -1,3 +1,4 @@
+import { createNotification } from "./notificationController";
 import { Response } from "express";
 import prisma from "../config/prisma";
 import type { AuthRequest } from "../middleware/authMiddleware";
@@ -50,9 +51,14 @@ export const submitReview = async (req: AuthRequest, res: Response) => {
       },
     });
 
-    await checkAndUpgradeTier(application.fresherId);
+    await createNotification(
+  application.fresherId,
+  'MENTOR_REVIEW',
+  '⭐ Mentor review received!',
+  `You received a ${Number(rating)}-star review from a mentor. Check your applications to see it.`,
+  '/applications'
+); 
 
-    res.status(201).json({ message: "Review submitted.", review: mentorReview });
   } catch (err) {
     console.error("Submit review error:", err);
     res.status(500).json({ message: "Something went wrong." });
