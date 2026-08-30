@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import PageLayout from '../components/PageLayout';
 import '../styles/notifications.css';
@@ -9,6 +10,7 @@ interface Notification {
   title: string;
   message: string;
   read: boolean;
+  link: string | null;
   createdAt: string;
 }
 
@@ -23,6 +25,8 @@ const typeIcon: Record<string, string> = {
 };
 
 export default function Notifications() {
+  const navigate = useNavigate();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -39,17 +43,18 @@ export default function Notifications() {
       .finally(() => setLoading(false));
   }, []);
 
-  const markAsRead = async (id: number) => {
-    try {
-      await api.put(`/notifications/${id}/read`);
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const markAsRead = async (id: number, link: string | null) => {
+  try {
+    await api.put(`/notifications/${id}/read`);
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
+    if (link) navigate(link);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const markAllAsRead = async () => {
     setMarkingAll(true);
@@ -112,7 +117,7 @@ export default function Notifications() {
               <div
                 key={notif.id}
                 className={`notif-item ${!notif.read ? 'unread' : ''}`}
-                onClick={() => !notif.read && markAsRead(notif.id)}
+               onClick={() => markAsRead(notif.id, notif.link)}
               >
                 <div className="notif-icon">
                   {typeIcon[notif.type] || '🔔'}
