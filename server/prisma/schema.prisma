@@ -97,6 +97,18 @@ model Job {
   applications Application[]
   updatedAt   DateTime  @updatedAt
 }
+enum JobCategory {
+  WEB_DEV
+  APP_DEV
+  UI_UX
+  GRAPHIC_DESIGN
+  DATA_SCIENCE
+  VIDEO_EDITING
+  WRITING
+  MARKETING
+  TRANSLATION
+  OTHER
+}
 
 enum JobStatus {
   OPEN
