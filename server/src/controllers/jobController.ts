@@ -4,7 +4,7 @@ import type { AuthRequest } from "../middleware/authMiddleware";
 
 export const createJob = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, description, budget, tierRequired, skills, isRemote } = req.body;
+    const { title, description, budget, tierRequired, skills, isRemote, category } = req.body;
 
     if (!title || !description || !budget || !skills) {
       return res.status(400).json({ message: "All fields are required." });
@@ -27,6 +27,7 @@ export const createJob = async (req: AuthRequest, res: Response) => {
         tierRequired: tierRequired || 1,
         skills,
         isRemote: isRemote ?? true,
+        category: category || "WEB_DEV",
         clientId: req.userId!,
       },
       include: { client: { select: { id: true, name: true, email: true } } },
@@ -41,38 +42,51 @@ export const createJob = async (req: AuthRequest, res: Response) => {
 
 export const getJobs = async (req: AuthRequest, res: Response) => {
   try {
+    const { search, category, minBudget, maxBudget, tier } = req.query;
+
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
       include: { role: true, profile: true },
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
+    if (!user) return res.status(404).json({ message: "User not found." });
 
-    let jobs;
+    const baseWhere: any = { status: "OPEN" };
 
     if (user.role.name === "FRESHER") {
       const userTier = user.profile?.tier || 1;
-      jobs = await prisma.job.findMany({
-        where: {
-          status: "OPEN",
-          tierRequired: { lte: userTier },
-        },
-        include: {
-          client: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-    } else {
-      jobs = await prisma.job.findMany({
-        where: { status: "OPEN" },
-        include: {
-          client: { select: { id: true, name: true } },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      baseWhere.tierRequired = { lte: userTier };
     }
+
+    if (search) {
+      baseWhere.OR = [
+        { title: { contains: String(search) } },
+        { description: { contains: String(search) } },
+        { skills: { contains: String(search) } },
+      ];
+    }
+
+    if (category && category !== 'ALL') {
+      baseWhere.category = String(category);
+    }
+
+    if (minBudget) {
+      baseWhere.budget = { ...baseWhere.budget, gte: parseFloat(String(minBudget)) };
+    }
+
+    if (maxBudget) {
+      baseWhere.budget = { ...baseWhere.budget, lte: parseFloat(String(maxBudget)) };
+    }
+
+    if (tier && tier !== 'ALL') {
+      baseWhere.tierRequired = Number(tier);
+    }
+
+    const jobs = await prisma.job.findMany({
+      where: baseWhere,
+      include: { client: { select: { id: true, name: true } } },
+      orderBy: { createdAt: "desc" },
+    });
 
     res.json({ jobs });
   } catch (err) {
@@ -91,14 +105,10 @@ export const getJobById = async (req: AuthRequest, res: Response) => {
 
     const job = await prisma.job.findUnique({
       where: { id },
-      include: {
-        client: { select: { id: true, name: true, email: true } },
-      },
+      include: { client: { select: { id: true, name: true, email: true } } },
     });
 
-    if (!job) {
-      return res.status(404).json({ message: "Job not found." });
-    }
+    if (!job) return res.status(404).json({ message: "Job not found." });
 
     res.json({ job });
   } catch (err) {
@@ -127,10 +137,7 @@ export const closeJob = async (req: AuthRequest, res: Response) => {
 
     const job = await prisma.job.findUnique({ where: { id } });
 
-    if (!job) {
-      return res.status(404).json({ message: "Job not found." });
-    }
-
+    if (!job) return res.status(404).json({ message: "Job not found." });
     if (job.clientId !== req.userId) {
       return res.status(403).json({ message: "You can only close your own jobs." });
     }
