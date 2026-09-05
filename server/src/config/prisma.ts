@@ -12,6 +12,8 @@ const adapter = new PrismaMariaDb({
   user: dbUrl.username,
   password: dbUrl.password,
   database: dbUrl.pathname.replace("/", ""),
+  allowPublicKeyRetrieval: true,
+  ssl: false,
 });
 
 const prisma = new PrismaClient({ adapter });

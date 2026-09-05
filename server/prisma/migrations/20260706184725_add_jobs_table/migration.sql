@@ -1,0 +1,19 @@
+-- CreateTable
+CREATE TABLE `Job` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(191) NOT NULL,
+    `description` TEXT NOT NULL,
+    `budget` DOUBLE NOT NULL,
+    `tierRequired` INTEGER NOT NULL DEFAULT 1,
+    `skills` VARCHAR(191) NOT NULL,
+    `isRemote` BOOLEAN NOT NULL DEFAULT true,
+    `status` ENUM('OPEN', 'CLOSED', 'IN_PROGRESS') NOT NULL DEFAULT 'OPEN',
+    `clientId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Job` ADD CONSTRAINT `Job_clientId_fkey` FOREIGN KEY (`clientId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
