@@ -1,0 +1,401 @@
+/* ================================
+   GLOBAL MOBILE STYLES
+   ================================ */
+
+@media (max-width: 768px) {
+
+  /* Hide desktop sidebar */
+  .shared-sidebar { display: none !important; }
+
+  /* Page layout — stack vertically */
+  .page-layout {
+    flex-direction: column;
+  }
+
+  .page-content {
+    padding-bottom: 80px; /* space for mobile nav */
+  }
+
+  /* ================================
+     LANDING PAGE
+     ================================ */
+
+  .land-nav {
+    padding: 14px 20px;
+  }
+
+  .land-nav-links { display: none; }
+
+  .land-hero {
+    padding: 40px 20px 32px;
+  }
+
+  .land-title { font-size: 36px; letter-spacing: -1px; }
+
+  .land-hero-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .land-stats {
+    flex-direction: column;
+  }
+
+  .land-stat {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 16px 20px;
+  }
+
+  .land-stat:last-child { border-bottom: none; }
+
+  .land-section { padding: 36px 20px; }
+
+  .land-features {
+    grid-template-columns: 1fr;
+  }
+
+  .land-tier-section { margin: 0 20px 36px; }
+
+  .land-tier-track { flex-wrap: wrap; gap: 12px; }
+
+  .land-tier-wrap { flex: none; width: 45%; }
+  .land-tier-line { display: none; }
+
+  .land-testimonials {
+    grid-template-columns: 1fr;
+  }
+
+  .land-cta { margin: 0 20px 36px; padding: 32px 20px; }
+
+  .land-cta-btns { flex-direction: column; }
+
+  .land-footer {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .land-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .land-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  /* ================================
+     DASHBOARD / PROFILE
+     ================================ */
+
+  .profile-main {
+    padding: 20px 16px;
+  }
+
+  .dash-greeting-card {
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .dash-greeting-right {
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .dash-greeting-text { font-size: 20px; }
+
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .dash-jobs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ================================
+     JOBS PAGE
+     ================================ */
+
+  .jobs-main { padding: 20px 16px; }
+
+  .jobs-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .jobs-category-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .jobs-category-tabs::-webkit-scrollbar { display: none; }
+
+  .jobs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jobs-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+  }
+
+  .jobs-modal-overlay { align-items: flex-end; padding: 0; }
+
+  .jobs-form-row { grid-template-columns: 1fr; }
+
+  /* ================================
+     APPLICATIONS
+     ================================ */
+
+  .apps-main { padding: 20px 16px; }
+
+  .apps-job-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .apps-job-tabs::-webkit-scrollbar { display: none; }
+
+  /* ================================
+     PORTFOLIO
+     ================================ */
+
+  .port-main { padding: 20px 16px; }
+
+  .port-grid { grid-template-columns: 1fr; }
+
+  .port-form-row { grid-template-columns: 1fr; }
+
+  .port-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+  }
+
+  .port-modal-overlay { align-items: flex-end; padding: 0; }
+
+  /* ================================
+     CAREER PASSPORT
+     ================================ */
+
+  .cp-main { padding: 20px 16px; }
+
+  .cp-passport-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: -24px;
+  }
+
+  .cp-passport-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .cp-stats {
+    flex-wrap: wrap;
+  }
+
+  .cp-stat {
+    flex: 1;
+    min-width: 80px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .cp-projects-grid { grid-template-columns: 1fr; }
+
+  /* ================================
+     NOTIFICATIONS
+     ================================ */
+
+  .notif-main { padding: 20px 16px; }
+
+  .notif-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  /* ================================
+     SETTINGS
+     ================================ */
+
+  .settings-main { padding: 20px 16px; }
+
+  .settings-theme-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ================================
+     ROADMAP
+     ================================ */
+
+  .rm-main { padding: 20px 16px; }
+
+  .rm-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .rm-overall-progress { width: 100%; }
+
+  .rm-track-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .rm-track-tabs::-webkit-scrollbar { display: none; }
+
+  .rm-congrats {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .rm-congrats-btn { margin-left: 0; }
+
+  /* ================================
+     MESSAGES
+     ================================ */
+
+  .msg-page {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .msg-main {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .msg-conversations {
+    height: auto;
+    max-height: 280px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .msg-chat {
+    height: calc(100vh - 360px);
+    min-height: 400px;
+  }
+
+  /* ================================
+     COMMUNITY
+     ================================ */
+
+  .comm-main { padding: 20px 16px; }
+
+  .comm-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .comm-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .comm-filters::-webkit-scrollbar { display: none; }
+
+  .comm-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+  }
+
+  .comm-modal-overlay { align-items: flex-end; padding: 0; }
+
+  .comm-type-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* ================================
+     MENTOR DASHBOARD
+     ================================ */
+
+  .mentor-main { padding: 20px 16px; }
+
+  .mentor-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .mentor-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mentor-cards { grid-template-columns: 1fr; }
+
+  /* ================================
+     THEME PICKER
+     ================================ */
+
+  .picker-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* ================================
+     MODALS — global bottom sheet on mobile
+     ================================ */
+
+  .apps-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+  }
+
+  .apps-modal-overlay { align-items: flex-end; padding: 0; }
+
+}
+
+/* ================================
+   SMALL PHONES (< 390px)
+   ================================ */
+
+@media (max-width: 390px) {
+  .land-title { font-size: 30px; }
+  .dash-stats { grid-template-columns: 1fr 1fr; }
+  .settings-theme-grid { grid-template-columns: repeat(2, 1fr); }
+  .picker-grid { grid-template-columns: repeat(2, 1fr); }
+}
