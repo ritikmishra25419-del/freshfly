@@ -17,6 +17,7 @@ import Messages from './pages/Messages';
 import Community from './pages/Community';
 import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
+import Skills from './pages/Skills';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -34,8 +35,12 @@ function App() {
                 <Route path="/" element={<Landing />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/skills" element={
+  <ProtectedRoute><ErrorBoundary><Skills /></ErrorBoundary></ProtectedRoute>
+} />
                 <Route path="/choose-theme" element={
                   <ProtectedRoute><ThemePicker /></ProtectedRoute>
+                  
                 } />
                 <Route path="/profile" element={
                   <ProtectedRoute><ErrorBoundary><Profile /></ErrorBoundary></ProtectedRoute>
