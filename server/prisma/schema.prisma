@@ -54,6 +54,7 @@ sentMessages         Message[]      @relation("SentMessages")
 posts     Post[]
 comments  Comment[]
 reactions Reaction[]
+
 }
 
 model Profile {
@@ -73,19 +74,24 @@ model Profile {
 model Skill {
   id    Int         @id @default(autoincrement())
   name  String      @unique
+  category    String
   users UserSkill[]
+  questions   SkillQuestion[]
 }
 
 model UserSkill {
-  id       Int     @id @default(autoincrement())
-  userId   Int
-  skillId  Int
-  verified Boolean @default(false)
-  user     User    @relation(fields: [userId], references: [id])
-  skill    Skill   @relation(fields: [skillId], references: [id])
-
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  skillId    Int
+  verified   Boolean  @default(false)
+  score      Int?
+  verifiedAt DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  skill      Skill    @relation(fields: [skillId], references: [id])
   @@unique([userId, skillId])
 }
+
 model Job {
   id          Int       @id @default(autoincrement())
   title       String
@@ -255,4 +261,16 @@ enum ReactionType {
   LIKE
   FIRE
   CLAP
+}
+
+model SkillQuestion {
+  id            Int    @id @default(autoincrement())
+  skillId       Int
+  question      String @db.Text
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctAnswer String
+  skill         Skill  @relation(fields: [skillId], references: [id])
 }
