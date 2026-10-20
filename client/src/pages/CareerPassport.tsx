@@ -47,6 +47,7 @@ export default function CareerPassport() {
   const [profile, setProfile] = useState<PassportData | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [skills, setSkills] = useState<{ id: number; verified: boolean; skill: { name: string; category: string } }[]>([]);
   const [avgRating, setAvgRating] = useState(0);
   const [completedJobs, setCompletedJobs] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -55,26 +56,28 @@ export default function CareerPassport() {
   useEffect(() => {
     if (!targetId) return;
 
-    Promise.all([
-      isOwnPassport
-        ? api.get('/profile/me')
-        : api.get(`/profile/${targetId}`),
-      api.get(`/portfolio/user/${targetId}`),
-      api.get(`/reviews/fresher/${targetId}`),
-      isOwnPassport
-        ? api.get('/applications/my')
-        : Promise.resolve({ data: { applications: [] } }),
-    ]).then(([profileRes, portfolioRes, reviewsRes, appsRes]) => {
-      setProfile(profileRes.data as PassportData);
-      const portData = portfolioRes.data as { items: PortfolioItem[] };
-      setPortfolio(portData.items);
-      const reviewData = reviewsRes.data as { reviews: Review[]; avgRating: number };
-      setReviews(reviewData.reviews);
-      setAvgRating(reviewData.avgRating);
-      const appsData = appsRes.data as { applications: { status: string }[] };
-      setCompletedJobs(appsData.applications.filter(a => a.status === 'COMPLETED').length);
-    }).catch(console.error)
-      .finally(() => setLoading(false));
+   Promise.all([
+  isOwnPassport
+    ? api.get('/profile/me')
+    : api.get(`/profile/${targetId}`),
+  api.get(`/portfolio/user/${targetId}`),
+  api.get(`/reviews/fresher/${targetId}`),
+  isOwnPassport
+    ? api.get('/applications/my')
+    : Promise.resolve({ data: { applications: [] } }),
+  api.get('/skills/my'),
+]).then(([profileRes, portfolioRes, reviewsRes, appsRes, skillsRes]) => {
+  setProfile(profileRes.data as PassportData);
+  const portData = portfolioRes.data as { items: PortfolioItem[] };
+  setPortfolio(portData.items);
+  const reviewData = reviewsRes.data as { reviews: Review[]; avgRating: number };
+  setReviews(reviewData.reviews);
+  setAvgRating(reviewData.avgRating);
+  const appsData = appsRes.data as { applications: { status: string }[] };
+  setCompletedJobs(appsData.applications.filter(a => a.status === 'COMPLETED').length);
+  const skillsData = skillsRes.data as { skills: typeof skills };
+  setSkills(skillsData.skills);
+})
   }, [targetId]);
 
   const copyLink = () => {
@@ -164,7 +167,30 @@ export default function CareerPassport() {
             </div>
           </div>
         </div>
-
+              {skills.length > 0 && (
+  <div className="cp-section">
+    <div className="cp-section-title">🛡️ Skills</div>
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {skills.map(us => (
+        <span key={us.id} style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 5,
+          background: us.verified ? '#F0FDF4' : 'var(--card)',
+          border: `1.5px solid ${us.verified ? '#22C55E' : 'var(--border)'}`,
+          borderRadius: 100,
+          padding: '5px 12px',
+          fontSize: 13,
+          fontWeight: 700,
+          color: us.verified ? '#166534' : 'var(--text-secondary)',
+        }}>
+          {us.verified && <span>✓</span>}
+          {us.skill.name}
+        </span>
+      ))}
+    </div>
+  </div>
+)}
         {portfolio.length > 0 && (
           <div className="cp-section">
             <div className="cp-section-title">🗂️ Projects</div>
