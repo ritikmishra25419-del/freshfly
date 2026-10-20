@@ -16,6 +16,7 @@ const fresherNavItems = [
   { icon: '💼', label: 'Jobs', path: '/jobs' },
   { icon: '📋', label: 'Applications', path: '/applications' },
   { icon: '🗂️', label: 'Portfolio', path: '/portfolio' },
+  { icon: '🛡️', label: 'Skills', path: '/skills' },
   { icon: '🪪', label: 'Career Passport', path: '/passport' },
   { icon: '🗺️', label: 'Roadmap', path: '/roadmap' },
   { icon: '👥', label: 'Community', path: '/community' },
